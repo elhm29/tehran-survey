@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>پرسشنامه ادراک محیطی شهر تهران</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Vazirmatn Persian Font (via jsDelivr CDN - fast & accessible in Iran without VPN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" />
+
+  <!-- Leaflet Map CSS & JS (via jsDelivr CDN - accessible in Iran without VPN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Vazirmatn', 'Tahoma', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Vazirmatn', Tahoma, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Smooth fade transitions between steps */
+    .step-enter {
+      animation: stepFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes stepFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Map container styling */
+    #tehran-map {
+      width: 100%;
+      height: 410px;
+      border-radius: 0.875rem;
+      z-index: 10;
+    }
+    @media (max-width: 640px) {
+      #tehran-map {
+        height: 330px;
+      }
+    }
+
+    /* Custom Leaflet font inheritance */
+    .leaflet-container {
+      font-family: 'Vazirmatn', Tahoma, sans-serif !important;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Likert Pill Hover & Active States */
+    .likert-btn {
+      transition: all 0.15s ease-in-out;
+    }
+    .likert-btn:hover {
+      transform: translateY(-1px);
+    }
+    .likert-btn.selected {
+      background-color: #0f766e !important;
+      color: #ffffff !important;
+      border-color: #0f766e !important;
+      box-shadow: 0 4px 12px -2px rgba(15, 118, 110, 0.35);
+      font-weight: 700;
+    }
+    .likert-btn-na.selected {
+      background-color: #475569 !important;
+      color: #ffffff !important;
+      border-color: #475569 !important;
+      font-weight: 600;
+    }
+    .likert-btn-avoid.selected {
+      background-color: #4f46e5 !important;
+      color: #ffffff !important;
+      border-color: #4f46e5 !important;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-100 selection:text-brand-900">
+
+  <!-- ===================================================================== -->
+  <!-- TOP STICKY HEADER & PROGRESS BAR                                      -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-brand-700 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+          ت
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold text-slate-800 leading-tight">پرسشنامه ادراک محیطی شهر تهران</h1>
+          <p id="step-subtitle" class="text-xs text-slate-500">خوش‌آمدگویی و شرایط ورود</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span id="step-counter-badge" class="text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">
+          گام ۱ از ۱۲
+        </span>
+        <span id="step-percent-badge" class="hidden sm:inline-block text-xs font-bold text-brand-700 w-9 text-left">
+          ۸٪
+        </span>
+      </div>
+    </div>
+
+    <!-- Smooth Progress Bar -->
+    <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+      <div id="progress-bar-fill" class="bg-gradient-to-l from-brand-500 to-brand-700 h-full transition-all duration-300 ease-out" style="width: 8%;"></div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN SURVEY CONTAINER                                                 -->
+  <!-- ===================================================================== -->
+  <main class="flex-grow w-full max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- Validation Error Toast Banner (Hidden by default) -->
+    <div id="validation-banner" class="hidden mb-5 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start justify-between gap-3 shadow-sm">
+      <div class="flex items-start gap-2.5">
+        <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div>
+          <p class="font-bold">لطفاً پیش از ادامه، به موارد مشخص‌شده پاسخ دهید:</p>
+          <p id="validation-message" class="mt-0.5 text-rose-700 text-xs sm:text-sm"></p>
+        </div>
+      </div>
+      <button onclick="hideValidationBanner()" class="text-rose-500 hover:text-rose-700 p-1">✕</button>
+    </div>
+
+    <!-- Dynamic Step Viewport -->
+    <div id="survey-viewport" class="step-enter"></div>
+
+    <!-- Navigation Footer Bar (Inside Main) -->
+    <div id="nav-controls" class="mt-8 pt-5 border-t border-slate-200/80 flex items-center justify-between gap-3">
+      <button id="btn-prev" type="button" onclick="prevStep()" class="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 font-medium text-sm transition flex items-center gap-2 disabled:opacity-40 disabled:pointer-events-none">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span>مرحله قبل</span>
+      </button>
+
+      <div class="flex items-center gap-2">
+        <!-- Quick Fill Button for Researcher Testing (Visible when Researcher Mode is unlocked or on localhost) -->
+        <button id="btn-quick-fill" type="button" onclick="quickFillCurrentStep()" class="hidden px-3 py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 text-xs font-medium transition" title="پر کردن آزمایشی این صفحه برای تست سریع">
+          ⚡ تست سریع این صفحه
+        </button>
+
+        <button id="btn-next" type="button" onclick="nextStep()" class="px-7 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-800 active:bg-brand-900 text-white font-semibold text-sm shadow-sm hover:shadow transition flex items-center gap-2">
+          <span id="btn-next-text">ثبت و مرحله بعد</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- SUBTLE FOOTER & RESEARCHER SETTINGS TRIGGER                           -->
+  <!-- ===================================================================== -->
+  <footer class="w-full border-t border-slate-200/60 bg-white/60 py-3 px-4 sm:px-6 text-xs text-slate-400">
+    <div class="max-w-3xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <span id="footer-secret-trigger" onclick="handleFooterSecretClick()" class="select-none cursor-default" title="پژوهش علمی ادراک محیطی">
+        پژوهش علمی ادراک کیفیت محیطی — گروه شهرسازی دانشگاه علم و صنعت ایران
+      </span>
+      <button id="btn-researcher-settings" onclick="openResearcherModal()" class="hidden text-slate-500 hover:text-brand-700 transition flex items-center gap-1.5 py-1 px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-medium">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span>تنظیمات پژوهشگر / اتصال به Google Sheet</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- IMAGE ZOOM LIGHTBOX MODAL                                             -->
+  <!-- ===================================================================== -->
+  <div id="image-zoom-modal" class="fixed inset-0 z-50 hidden bg-slate-900/85 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeImageZoom()">
+    <div class="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-slate-50">
+        <span id="zoom-modal-title" class="text-sm font-bold text-slate-700">بزرگ‌نمایی تصویر</span>
+        <button onclick="closeImageZoom()" class="px-2.5 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold">بستن ✕</button>
+      </div>
+      <div class="p-2 bg-slate-950 flex items-center justify-center max-h-[80vh]">
+        <img id="zoom-modal-img" src="" alt="تصویر خیابان تهران" class="max-h-[76vh] w-auto object-contain rounded-lg" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- RESEARCHER CONFIGURATION & GOOGLE SHEETS INTEGRATION MODAL            -->
+  <!-- ===================================================================== -->
+  <div id="researcher-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-4 bg-slate-800 text-white flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold">پنل تنظیمات پژوهشگر و اتصال به Google Sheets</h2>
+          <p class="text-xs text-slate-300 mt-0.5">تنظیم لینک وب‌اپ Google Sheet، تصاویر بخش هـ، مشخصات مجری و دریافت خروجی</p>
+        </div>
+        <button onclick="closeResearcherModal()" class="text-slate-300 hover:text-white p-1.5 rounded-lg hover:bg-slate-700">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-6 text-sm">
+
+        <!-- 1. Quick Test Mode Toggle & Step Jumper -->
+        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-3">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h3 class="font-bold text-amber-900">حالت تست سریع پژوهشگر (دکمه پر کردن خودکار)</h3>
+              <p class="text-xs text-amber-700 mt-0.5">با فعال‌سازی این گزینه، دکمه «⚡ تست سریع این صفحه» در پایین فرم نمایش داده می‌شود تا بتوانید همه ۱۲ مرحله را در چند ثانیه تست کنید.</p>
+            </div>
+            <label class="inline-flex items-center cursor-pointer shrink-0">
+              <input type="checkbox" id="cfg-test-mode" class="sr-only peer" onchange="toggleTestMode(this.checked)">
+              <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all relative peer-checked:bg-amber-600"></div>
+            </label>
+          </div>
+          <div class="pt-2 border-t border-amber-200/80">
+            <span class="block text-xs font-bold text-amber-900 mb-1.5">پرش سریع به گام‌ها (بدون اعتبارسنجی):</span>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" onclick="jumpToStepAdmin(1)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۱</button>
+              <button type="button" onclick="jumpToStepAdmin(2)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۲ (نقشه)</button>
+              <button type="button" onclick="jumpToStepAdmin(3)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۳</button>
+              <button type="button" onclick="jumpToStepAdmin(4)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۴</button>
+              <button type="button" onclick="jumpToStepAdmin(5)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۵</button>
+              <button type="button" onclick="jumpToStepAdmin(6)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۶</button>
+              <button type="button" onclick="jumpToStepAdmin(7)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۷</button>
+              <button type="button" onclick="jumpToStepAdmin(8)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۸</button>
+              <button type="button" onclick="jumpToStepAdmin(9)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۹ (تصویر ۱)</button>
+              <button type="button" onclick="jumpToStepAdmin(10)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۱۰ (تصویر ۲)</button>
+              <button type="button" onclick="jumpToStepAdmin(11)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۱۱ (تصویر ۳)</button>
+              <button type="button" onclick="jumpToStepAdmin(12)" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-900 hover:bg-amber-100">گام ۱۲ (پایان)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Google Sheets Webhook URL -->
+        <div class="space-y-2">
+          <label class="block font-bold text-slate-800">۱. آدرس وب‌اپ اسکریپت گوگل شیت (Google Apps Script Web App URL)</label>
+          <p class="text-xs text-slate-500">پس از قرار دادن کد اسکریپت زیر در Google Sheet خود و انتخاب Deploy &gt; New Deployment &gt; Web App، لینک دریافتی (که با <code class="bg-slate-100 px-1 rounded">https://script.google.com/macros/s/.../exec</code> تمام می‌شود) را اینجا قرار دهید:</p>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="url" id="cfg-sheet-url" dir="ltr" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-grow px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-mono focus:outline-none focus:border-brand-600" />
+            <button type="button" onclick="sendTestRowToSheet()" class="px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold shrink-0 transition">
+              ارسال ردیف آزمایشی به شیت
+            </button>
+          </div>
+          <p id="sheet-test-status" class="text-xs font-medium hidden"></p>
+        </div>
+
+        <!-- 3. Researcher Info & Custom Images -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">مشخصات مجری پژوهش (نمایش در صفحه اول)</label>
+            <input type="text" id="cfg-researcher-name" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" placeholder="مثلاً: گروه شهرسازی، دانشکده هنرهای زیبا، دانشگاه تهران" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">راه ارتباطی با پژوهشگر</label>
+            <input type="text" id="cfg-researcher-contact" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" placeholder="مثلاً: urban.research@ut.ac.ir" />
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-2 border-t border-slate-200">
+          <h3 class="font-bold text-slate-800">۲. تصاویر بخش هـ (تصویر ۱ تا ۳ خیابان‌های تهران)</h3>
+          <p class="text-xs text-slate-500">به‌طور پیش‌فرض فایل‌های <code class="bg-slate-100 px-1 rounded">pic1.jpg</code>، <code class="bg-slate-100 px-1 rounded">pic2.jpg</code> و <code class="bg-slate-100 px-1 rounded">pic3.jpg</code> تنظیم شده‌اند. همچنین می‌توانید فایل هر تصویر را مستقیماً از کامپیوتر یا گوشی خود انتخاب کنید تا داخل فرم جاسازی شود:</p>
+          <div class="grid grid-cols-1 gap-2.5">
+            <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+              <span class="text-xs font-bold w-16 shrink-0">تصویر ۱:</span>
+              <input type="text" id="cfg-img1" dir="ltr" class="flex-grow px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-mono" />
+              <label class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer shrink-0 border border-slate-300 transition">
+                📂 انتخاب فایل pic1.jpg
+                <input type="file" accept="image/*" class="hidden" onchange="handleLocalImageUpload(1, this)" />
+              </label>
+            </div>
+            <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+              <span class="text-xs font-bold w-16 shrink-0">تصویر ۲:</span>
+              <input type="text" id="cfg-img2" dir="ltr" class="flex-grow px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-mono" />
+              <label class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer shrink-0 border border-slate-300 transition">
+                📂 انتخاب فایل pic2.jpg
+                <input type="file" accept="image/*" class="hidden" onchange="handleLocalImageUpload(2, this)" />
+              </label>
+            </div>
+            <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+              <span class="text-xs font-bold w-16 shrink-0">تصویر ۳:</span>
+              <input type="text" id="cfg-img3" dir="ltr" class="flex-grow px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-mono" />
+              <label class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer shrink-0 border border-slate-300 transition">
+                📂 انتخاب فایل pic3.jpg
+                <input type="file" accept="image/*" class="hidden" onchange="handleLocalImageUpload(3, this)" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Google Apps Script Code to Copy -->
+        <div class="space-y-2 pt-2 border-t border-slate-200">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-slate-800">۳. کد آماده Google Apps Script (برای کپی در Google Sheet)</label>
+            <button type="button" onclick="copyAppsScriptCode()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium transition">
+              📋 کپی کد اسکریپت
+            </button>
+          </div>
+          <ol class="text-xs text-slate-600 list-decimal list-inside space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <li>یک فایل <strong>Google Sheet</strong> جدید در گوگل درایو خود بسازید و از منوی بالا روی <strong>Extensions &gt; Apps Script</strong> کلیک کنید.</li>
+            <li>کد زیر را کپی کرده، جایگزین کدهای فعلی داخل ادیتور کنید و دکمه ذخیره (💾) را بزنید.</li>
+            <li>روی دکمه آبی <strong>Deploy &gt; New deployment</strong> کلیک کنید، نوع را روی <strong>Web app</strong> بگذارید، گزینه <strong>Who has access</strong> را روی <strong>Anyone</strong> تنظیم کنید و Deploy را بزنید.</li>
+            <li>لینک Web app ساخته‌شده را در کادر شماره ۱ بالا قرار دهید (یا مستقیماً در متغیر <code class="bg-slate-200 px-1 rounded">DEFAULT_CONFIG.googleSheetWebAppUrl</code> در کد HTML ذخیره کنید).</li>
+          </ol>
+          <pre id="apps-script-code" dir="ltr" class="bg-slate-900 text-emerald-300 p-3.5 rounded-xl text-xs font-mono overflow-x-auto max-h-48 leading-relaxed">function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    
+    // Ordered columns matching the exact survey codebook
+    var headers = [
+      "timestamp", "duration_sec", "attention_D17_passed",
+      "P1_consent", "P2_tehran_resident", "P3_age_18plus", "P4_residence_duration",
+      "A1_location_mode", "A1_lat", "A1_lng", "A1_buffer_m", "A1_district", "A1_neighborhood", "A1_intersection",
+      "A2_street_type", "A2_other", "A3_tenure", "A4_familiarity", "A5_walk_freq", "A6_travel_mode", "A7_presence_hours", "A8_physical_change",
+      "B1_overall_satisfaction",
+      "C1_beautiful", "C2_boring", "C3_safe", "C4_wealthy", "C5_depressing", "C6_lively",
+      "C7_active_space", "C8_safe_look", "C9_monotonous", "C10_scenic", "C11_gloomy_look", "C12_affluent_look",
+      "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9",
+      "D10", "D11", "D12", "D13", "D13_avoid_night", "D14", "D15", "D16", "D17_attention", "D18",
+      "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26",
+      "E1_1", "E1_2", "E1_3", "E1_4", "E1_5", "E1_6", "E1_7_know",
+      "E2_1", "E2_2", "E2_3", "E2_4", "E2_5", "E2_6", "E2_7_know",
+      "E3_1", "E3_2", "E3_3", "E3_4", "E3_5", "E3_6", "E3_7_know",
+      "F1_open_comment",
+      "G1_age_group", "G2_gender", "G3_education", "G4_urban_field", "G5_household_size", "G6_cars", "G7_ses_ladder"
+    ];
+
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(headers);
+    }
+
+    var row = headers.map(function(key) {
+      var val = data[key];
+      if (Array.isArray(val)) return val.join(" | ");
+      return (val !== undefined && val !== null) ? val : "";
+    });
+
+    sheet.appendRow(row);
+
+    return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}</pre>
+        </div>
+
+        <!-- 5. Local Backup Export -->
+        <div class="pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs text-slate-600">ذخیره و دانلود پاسخ‌های ثبت‌شده روی این مرورگر:</span>
+          <div class="flex gap-2">
+            <button type="button" onclick="downloadCurrentResponseCSV()" class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-xs font-medium">
+              دانلود پاسخ فعلی (CSV)
+            </button>
+            <button type="button" onclick="saveResearcherConfig()" class="px-5 py-1.5 rounded-lg bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold">
+              ذخیره تنظیمات و بستن
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- APPLICATION LOGIC & COMPLETE QUESTIONNAIRE DATA                       -->
+  <!-- ===================================================================== -->
+  <script>
+    /*************************************************************************
+     * 1. DEFAULT CONFIGURATION (Production Webhook Hardcoded)
+     *************************************************************************/
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwUlL0OCpPWNye-GwHJkq8mulyGXvkFkMBNxeHdSKBjN0Q-Oj0z-V7U4Ige-OEoUtb6/exec";
+
+    const DEFAULT_CONFIG = {
+      googleSheetWebAppUrl: WEBHOOK_URL,
+      researcherName: "گروه شهرسازی دانشگاه علم و صنعت ایران",
+      researcherContact: "elham_ali80@arch.iust.ac.ir",
+      // Three uploaded street-level images of Tehran for Section E (Steps 9, 10, 11)
+      image1Url: "pic1.jpg",
+      image2Url: "pic2.jpg",
+      image3Url: "pic3.jpg",
+      testMode: false
+    };
+
+    let appConfig = { ...DEFAULT_CONFIG };
+    try {
+      const savedCfg = localStorage.getItem("tehran_survey_config_v5");
+      if (savedCfg) {
+        const parsed = JSON.parse(savedCfg);
+        appConfig = {
+          ...DEFAULT_CONFIG,
+          ...parsed,
+          googleSheetWebAppUrl: (parsed.googleSheetWebAppUrl && parsed.googleSheetWebAppUrl.startsWith("http"))
+            ? parsed.googleSheetWebAppUrl
+            : WEBHOOK_URL
+        };
+      }
+    } catch (e) {}
+
+    // Production Admin Lock: Hidden for regular respondents unless ?admin=1 or triple-click on footer
+    let isAdminUnlocked = false;
+    let footerClickCount = 0;
+    let footerClickTimer = null;
+
+    function checkAdminAccessOnLoad() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("admin") === "1") {
+          unlockAdminPanel(false);
+        }
+      } catch (e) {}
+    }
+
+    function handleFooterSecretClick() {
+      footerClickCount++;
+      if (footerClickTimer) clearTimeout(footerClickTimer);
+      if (footerClickCount >= 3) {
+        footerClickCount = 0;
+        unlockAdminPanel(true);
+      } else {
+        footerClickTimer = setTimeout(() => {
+          footerClickCount = 0;
+        }, 900);
+      }
+    }
+
+    function unlockAdminPanel(openModalImmediately) {
+      isAdminUnlocked = true;
+      const btn = document.getElementById("btn-researcher-settings");
+      if (btn) btn.classList.remove("hidden");
+      if (openModalImmediately) {
+        openResearcherModal();
+      }
+    }
+
+    function jumpToStepAdmin(stepNumber) {
+      currentStep = stepNumber;
+      hideValidationBanner();
+      closeResearcherModal();
+      renderCurrentStep(true);
+    }
+
+    // Scene-matched SVG fallback generator for preview environments when pic1.jpg, pic2.jpg, pic3.jpg are not yet in the same directory
+    function getTehranStreetFallbackDataUri(imgIndex) {
+      let svg = "";
+      if (Number(imgIndex) === 1) {
+        // Matches pic1.jpg: Wide asphalt street with modern mid-rise commercial/office buildings on both sides and blue vertical letters on right building
+        svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+          <defs>
+            <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b82f6"/>
+              <stop offset="100%" stop-color="#dbeafe"/>
+            </linearGradient>
+            <linearGradient id="road1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="100%" stop-color="#1e293b"/>
+            </linearGradient>
+          </defs>
+          <rect width="960" height="300" fill="url(#sky1)"/>
+          <!-- Clouds wisps -->
+          <path d="M250 60 Q420 110 560 70 T800 95" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" opacity="0.55"/>
+          <!-- Distant buildings -->
+          <rect x="440" y="185" width="75" height="105" fill="#cbd5e1"/>
+          <rect x="520" y="130" width="95" height="160" fill="#e2e8f0"/>
+          <rect x="530" y="145" width="75" height="90" fill="#0284c7" opacity="0.5"/>
+          <!-- Left mid-rise commercial building -->
+          <polygon points="0,15 315,75 315,310 0,360" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+          <polygon points="0,245 315,268 315,318 0,360" fill="#1e293b"/>
+          <rect x="145" y="65" width="60" height="36" transform="skewY(8)" fill="#334155"/>
+          <rect x="145" y="125" width="60" height="36" transform="skewY(8)" fill="#334155"/>
+          <rect x="145" y="185" width="60" height="36" transform="skewY(8)" fill="#334155"/>
+          <!-- Right mid-rise stone & glass building with blue vertical sign -->
+          <polygon points="645,45 960,0 960,355 645,305" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+          <polygon points="645,180 860,155 860,335 645,305" fill="#334155"/>
+          <text x="735" y="75" fill="#0284c7" font-family="sans-serif" font-weight="900" font-size="24">I</text>
+          <text x="730" y="102" fill="#0284c7" font-family="sans-serif" font-weight="900" font-size="24">R</text>
+          <text x="730" y="130" fill="#0284c7" font-family="sans-serif" font-weight="900" font-size="24">A</text>
+          <text x="730" y="158" fill="#0284c7" font-family="sans-serif" font-weight="900" font-size="24">N</text>
+          <!-- Wide asphalt street -->
+          <polygon points="0,540 350,285 610,285 960,540" fill="url(#road1)"/>
+          <!-- Green & white curbs -->
+          <line x1="0" y1="420" x2="355" y2="288" stroke="#10b981" stroke-width="8" stroke-dasharray="18,18"/>
+          <line x1="960" y1="420" x2="605" y2="288" stroke="#10b981" stroke-width="8" stroke-dasharray="18,18"/>
+          <!-- Center dashed road line -->
+          <line x1="480" y1="530" x2="480" y2="290" stroke="#f8fafc" stroke-width="8" stroke-dasharray="36,28"/>
+          <rect x="280" y="475" width="400" height="36" rx="8" fill="#0f172a" opacity="0.78"/>
+          <text x="480" y="498" text-anchor="middle" fill="#f8fafc" font-family="Tahoma, sans-serif" font-size="14">تصویر ۱ (pic1.jpg) — نمای خیابان با ساختمان‌های اداری-تجاری</text>
+        </svg>`;
+      } else if (Number(imgIndex) === 2) {
+        // Matches pic2.jpg: Green tree-lined street with tall sycamore trees casting shadows on asphalt and a silver car parked on the left
+        svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+          <defs>
+            <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#93c5fd"/>
+              <stop offset="100%" stop-color="#f0f9ff"/>
+            </linearGradient>
+          </defs>
+          <rect width="960" height="300" fill="url(#sky2)"/>
+          <!-- Distant white towers on right -->
+          <rect x="605" y="165" width="48" height="110" fill="#e2e8f0"/>
+          <rect x="695" y="175" width="90" height="100" fill="#f8fafc" stroke="#cbd5e1"/>
+          <rect x="705" y="175" width="70" height="14" fill="#be123c"/>
+          <!-- Left brick wall -->
+          <polygon points="0,235 360,262 360,305 0,340" fill="#7c2d12"/>
+          <!-- Wide asphalt street -->
+          <polygon points="0,540 390,275 565,275 960,540" fill="#475569"/>
+          <!-- Dappled tree shadows on asphalt -->
+          <ellipse cx="320" cy="430" rx="260" ry="65" fill="#1e293b" opacity="0.55"/>
+          <ellipse cx="450" cy="360" rx="210" ry="42" fill="#1e293b" opacity="0.45"/>
+          <!-- Right green park strip & curb -->
+          <polygon points="565,275 960,315 960,410 565,285" fill="#15803d"/>
+          <line x1="960" y1="365" x2="560" y2="278" stroke="#10b981" stroke-width="7" stroke-dasharray="16,16"/>
+          <!-- Tall sycamore tree trunks on left -->
+          <rect x="52" y="0" width="52" height="395" fill="#27272a"/>
+          <rect x="265" y="35" width="28" height="305" fill="#3f3f46"/>
+          <rect x="345" y="85" width="18" height="230" fill="#3f3f46"/>
+          <!-- Rich green sycamore foliage canopy -->
+          <circle cx="220" cy="70" r="145" fill="#65a30d" opacity="0.88"/>
+          <circle cx="370" cy="115" r="120" fill="#4d7c0f" opacity="0.85"/>
+          <circle cx="845" cy="185" r="85" fill="#65a30d" opacity="0.9"/>
+          <!-- Silver car parked on the left -->
+          <rect x="362" y="282" width="64" height="28" rx="7" fill="#cbd5e1" stroke="#334155" stroke-width="2"/>
+          <rect x="372" y="274" width="44" height="14" rx="4" fill="#94a3b8"/>
+          <!-- Dashed road line -->
+          <line x1="705" y1="535" x2="505" y2="285" stroke="#f8fafc" stroke-width="6" stroke-dasharray="30,24"/>
+          <rect x="280" y="475" width="400" height="36" rx="8" fill="#0f172a" opacity="0.78"/>
+          <text x="480" y="498" text-anchor="middle" fill="#f8fafc" font-family="Tahoma, sans-serif" font-size="14">تصویر ۲ (pic2.jpg) — خیابان پردرخت با سایه‌اندازی چنارها</text>
+        </svg>`;
+      } else {
+        // Matches pic3.jpg: Wide cracked asphalt street with long bright blue corrugated construction fence on right and Milad Tower in distance
+        svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+          <defs>
+            <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#93c5fd"/>
+              <stop offset="100%" stop-color="#e2e8f0"/>
+            </linearGradient>
+          </defs>
+          <rect width="960" height="295" fill="url(#sky3)"/>
+          <!-- Distant apartment blocks & Milad Tower silhouette -->
+          <rect x="395" y="225" width="110" height="60" fill="#d6d3d1"/>
+          <rect x="515" y="232" width="95" height="53" fill="#e7e5e4"/>
+          <!-- Milad Tower in distance -->
+          <line x1="635" y1="190" x2="635" y2="275" stroke="#64748b" stroke-width="4"/>
+          <ellipse cx="635" cy="212" rx="8" ry="6" fill="#475569"/>
+          <!-- Left stone wall & blue railings -->
+          <polygon points="0,275 340,278 340,320 0,410" fill="#57534e"/>
+          <polygon points="0,195 340,248 340,278 0,275" fill="none" stroke="#64748b" stroke-width="3"/>
+          <!-- Right bright blue corrugated construction fence -->
+          <polygon points="385,272 960,245 960,330 385,286" fill="#0284c7"/>
+          <!-- Utility pole & overhead wire -->
+          <line x1="652" y1="192" x2="652" y2="305" stroke="#475569" stroke-width="5"/>
+          <path d="M652 200 Q800 155 960 95" fill="none" stroke="#334155" stroke-width="2"/>
+          <!-- Wide weathered/cracked asphalt foreground -->
+          <polygon points="0,540 0,410 345,278 395,278 960,330 960,540" fill="#64748b"/>
+          <path d="M180 535 L360 390 L420 440 M580 530 L520 420 L690 385 M750 535 L640 450" fill="none" stroke="#334155" stroke-width="2.5" opacity="0.65"/>
+          <rect x="280" y="475" width="400" height="36" rx="8" fill="#0f172a" opacity="0.78"/>
+          <text x="480" y="498" text-anchor="middle" fill="#f8fafc" font-family="Tahoma, sans-serif" font-size="14">تصویر ۳ (pic3.jpg) — معبر عریض با حصار کارگاهی آبی و نمای برج میلاد</text>
+        </svg>`;
+      }
+      return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    }
+
+    /*************************************************************************
+     * 2. BUILT-IN OFFLINE GAZETTEER OF TEHRAN (22 Districts + 65+ Landmarks)
+     * Works 100% offline/instantaneously in Iran without VPN, plus live OSM search
+     *************************************************************************/
+    const TEHRAN_DISTRICTS = [
+      { id: 1, name: "منطقه ۱ (شمیرانات، تجریش، نیاوران، ولنجک)", lat: 35.8068, lng: 51.4293 },
+      { id: 2, name: "منطقه ۲ (سعادت‌آباد، شهرک غرب، صادقیه، مرزداران)", lat: 35.7575, lng: 51.3622 },
+      { id: 3, name: "منطقه ۳ (ونک، قلهک، جردن، میرداماد، پاسداران)", lat: 35.7631, lng: 51.4305 },
+      { id: 4, name: "منطقه ۴ (تهرانپارس، رسالت، نارمک شمالی، هروی)", lat: 35.7483, lng: 51.5162 },
+      { id: 5, name: "منطقه ۵ (پونک، جنت‌آباد، شهران، اکباتان، فردوس)", lat: 35.7492, lng: 51.3106 },
+      { id: 6, name: "منطقه ۶ (امیرآباد، یوسف‌آباد، میدان ولیعصر، کریمخان)", lat: 35.7244, lng: 51.4055 },
+      { id: 7, name: "منطقه ۷ (هفت‌تیر، سهروردی، عباس‌آباد، نظام‌آباد)", lat: 35.7235, lng: 51.4428 },
+      { id: 8, name: "منطقه ۸ (نارمک، هفت‌حوض، مجیدیه، کرمان)", lat: 35.7302, lng: 51.4883 },
+      { id: 9, name: "منطقه ۹ (میدان آزادی، استاد معین، مهرآباد، هاشمی)", lat: 35.6967, lng: 51.3471 },
+      { id: 10, name: "منطقه ۱۰ (نواب، رودکی، سلسبیل، جیحون، بریانک)", lat: 35.6894, lng: 51.3728 },
+      { id: 11, name: "منطقه ۱۱ (میدان انقلاب، جمهوری، منیریه، راه‌آهن)", lat: 35.6881, lng: 51.3982 },
+      { id: 12, name: "منطقه ۱۲ (بازار، بهارستان، فردوسی، پیچ شمیران)", lat: 35.6869, lng: 51.4285 },
+      { id: 13, name: "منطقه ۱۳ (پیروزی، نیروهوایی، تهران‌نو، دماوند)", lat: 35.6989, lng: 51.4775 },
+      { id: 14, name: "منطقه ۱۴ (شهدا، آهنگ، دولاب، قصر فیروزه)", lat: 35.6761, lng: 51.4694 },
+      { id: 15, name: "منطقه ۱۵ (خاوران، افسریه، کیان‌شهر، مسعودیه)", lat: 35.6391, lng: 51.4742 },
+      { id: 16, name: "منطقه ۱۶ (نازی‌آباد، جوادیه، خزانه، یاخچی‌آباد)", lat: 35.6425, lng: 51.4021 },
+      { id: 17, name: "منطقه ۱۷ (ابوذر، فلاح، قزوین، زمزم)", lat: 35.6548, lng: 51.3647 },
+      { id: 18, name: "منطقه ۱۸ (یافت‌آباد، شادآباد، خلیج فارس)", lat: 35.6512, lng: 51.3125 },
+      { id: 19, name: "منطقه ۱۹ (خانی‌آباد نو، عبدل‌آباد، نعمت‌آباد)", lat: 35.6208, lng: 51.3669 },
+      { id: 20, name: "منطقه ۲۰ (شهرری، دولت‌آباد، جوانمرد قصاب)", lat: 35.5935, lng: 51.4342 },
+      { id: 21, name: "منطقه ۲۱ (تهرانسر، وردآورد، چیتگر جنوبی)", lat: 35.6962, lng: 51.2564 },
+      { id: 22, name: "منطقه ۲۲ (دریاچه چیتگر، دهکده المپیک، شهرک راه‌آهن)", lat: 35.7478, lng: 51.2125 }
+    ];
+
+    const TEHRAN_POIS = [
+      { title: "میدان انقلاب اسلامی", district: 11, lat: 35.7009, lng: 51.3912 },
+      { title: "میدان ولیعصر (عج)", district: 6, lat: 35.7117, lng: 51.4070 },
+      { title: "میدان ونک", district: 3, lat: 35.7574, lng: 51.4100 },
+      { title: "میدان تجریش", district: 1, lat: 35.8068, lng: 51.4293 },
+      { title: "میدان آزادی", district: 9, lat: 35.6997, lng: 51.3381 },
+      { title: "فلکه دوم صادقیه (آریاشهر)", district: 2, lat: 35.7224, lng: 51.3347 },
+      { title: "میدان هفت‌تیر", district: 7, lat: 35.7161, lng: 51.4272 },
+      { title: "چهارراه ولیعصر (تئاتر شهر)", district: 11, lat: 35.7003, lng: 51.4057 },
+      { title: "میدان فردوسی", district: 12, lat: 35.7016, lng: 51.4193 },
+      { title: "میدان بهارستان", district: 12, lat: 35.6912, lng: 51.4375 },
+      { title: "میدان رسالت", district: 4, lat: 35.7380, lng: 51.4910 },
+      { title: "میدان نبوت (هفت‌حوض نارمک)", district: 8, lat: 35.7289, lng: 51.4903 },
+      { title: "فلکه اول تهرانپارس", district: 4, lat: 35.7294, lng: 51.5269 },
+      { title: "میدان پونک", district: 5, lat: 35.7618, lng: 51.3316 },
+      { title: "میدان کاج (سعادت‌آباد)", district: 2, lat: 35.7817, lng: 51.3752 },
+      { title: "میدان صنعت (شهرک غرب)", district: 2, lat: 35.7586, lng: 51.3702 },
+      { title: "امیرآباد شمالی (کارگر شمالی)", district: 6, lat: 35.7277, lng: 51.3895 },
+      { title: "یوسف‌آباد (میدان سیدجمال‌الدین اسدآبادی)", district: 6, lat: 35.7336, lng: 51.4063 },
+      { title: "بلوار کشاورز", district: 6, lat: 35.7098, lng: 51.3965 },
+      { title: "خیابان شریعتی - قلهک", district: 3, lat: 35.7712, lng: 51.4418 },
+      { title: "بلوار میرداماد (میدان مادر)", district: 3, lat: 35.7591, lng: 51.4392 },
+      { title: "شهرک اکباتان", district: 5, lat: 35.7094, lng: 51.3058 },
+      { title: "بلوار فردوس شرق", district: 5, lat: 35.7228, lng: 51.3204 },
+      { title: "جنت‌آباد مرکزی", district: 5, lat: 35.7581, lng: 51.3065 },
+      { title: "مرزداران", district: 2, lat: 35.7351, lng: 51.3489 },
+      { title: "گیشا (کوی نصر)", district: 2, lat: 35.7347, lng: 51.3765 },
+      { title: "خیابان ستارخان (برق آلستوم)", district: 2, lat: 35.7165, lng: 51.3590 },
+      { title: "میدان توحید", district: 6, lat: 35.7059, lng: 51.3775 },
+      { title: "میدان حر", district: 11, lat: 35.6852, lng: 51.3924 },
+      { title: "میدان منیریه", district: 11, lat: 35.6815, lng: 51.4044 },
+      { title: "میدان راه‌آهن", district: 11, lat: 35.6589, lng: 51.3976 },
+      { title: "میدان شوش", district: 15, lat: 35.6575, lng: 51.4328 },
+      { title: "نازی‌آباد (میدان بازار دوم)", district: 16, lat: 35.6416, lng: 51.4047 },
+      { title: "میدان شهدا", district: 14, lat: 35.6889, lng: 51.4543 },
+      { title: "خیابان پیروزی (چهارراه کوکاکولا)", district: 13, lat: 35.6882, lng: 51.4828 },
+      { title: "تهران‌نو (فلکه چایچی)", district: 13, lat: 35.7096, lng: 51.4951 },
+      { title: "افسریه (۱۵ متری اول)", district: 15, lat: 35.6478, lng: 51.4979 },
+      { title: "میدان شهرری (حرم حضرت عبدالعظیم)", district: 20, lat: 35.5882, lng: 51.4337 },
+      { title: "دولت‌آباد (فلکه اول)", district: 20, lat: 35.6119, lng: 51.4581 },
+      { title: "تهرانسر (چهارراه صدف)", district: 21, lat: 35.6915, lng: 51.2558 },
+      { title: "دریاچه شهدای خلیج فارس (چیتگر)", district: 22, lat: 35.7445, lng: 51.2145 },
+      { title: "میدان المپیک (دهکده المپیک)", district: 22, lat: 35.7582, lng: 51.2554 },
+      { title: "میدان هروی", district: 4, lat: 35.7689, lng: 51.4765 },
+      { title: "نیاوران (میدان باهنر)", district: 1, lat: 35.8147, lng: 51.4706 },
+      { title: "ولنجک (میدان دانشگاه شهید بهشتی)", district: 1, lat: 35.8021, lng: 51.3968 }
+    ];
+
+    /*************************************************************************
+     * 3. SURVEY STATE & QUESTION LISTS
+     *************************************************************************/
+    const TOTAL_STEPS = 12;
+    let currentStep = 1;
+    let surveyStartTime = Date.now();
+    let mapInstance = null;
+    let mapMarker = null;
+    let mapCircle = null;
+
+    // Master responses object matching Google Sheets headers
+    const responses = {
+      P1_consent: "",
+      P2_tehran_resident: "",
+      P3_age_18plus: "",
+      P4_residence_duration: "",
+
+      A1_location_mode: "map", // 'map' or 'text'
+      A1_lat: "",
+      A1_lng: "",
+      A1_buffer_m: 500,
+      A1_district: "",
+      A1_neighborhood: "",
+      A1_intersection: "",
+
+      A2_street_type: "",
+      A2_other: "",
+      A3_tenure: "",
+      A4_familiarity: "",
+      A5_walk_freq: "",
+      A6_travel_mode: "",
+      A7_presence_hours: [],
+      A8_physical_change: "",
+
+      B1_overall_satisfaction: "",
+
+      // Section C (1..12)
+      C1_beautiful: "", C2_boring: "", C3_safe: "", C4_wealthy: "", C5_depressing: "", C6_lively: "",
+      C7_active_space: "", C8_safe_look: "", C9_monotonous: "", C10_scenic: "", C11_gloomy_look: "", C12_affluent_look: "",
+
+      // Section D (1..26)
+      D1: "", D2: "", D3: "", D4: "", D5: "", D6: "", D7: "", D8: "", D9: "",
+      D10: "", D11: "", D12: "", D13: "", D13_avoid_night: "خیر", D14: "", D15: "", D16: "", D17_attention: "", D18: "",
+      D19: "", D20: "", D21: "", D22: "", D23: "", D24: "", D25: "", D26: "",
+
+      // Section E (Images 1, 2, 3)
+      E1_1: "", E1_2: "", E1_3: "", E1_4: "", E1_5: "", E1_6: "", E1_7_know: "",
+      E2_1: "", E2_2: "", E2_3: "", E2_4: "", E2_5: "", E2_6: "", E2_7_know: "",
+      E3_1: "", E3_2: "", E3_3: "", E3_4: "", E3_5: "", E3_6: "", E3_7_know: "",
+
+      // Section F & G
+      F1_open_comment: "",
+      G1_age_group: "",
+      G2_gender: "",
+      G3_education: "",
+      G4_urban_field: "",
+      G5_household_size: "",
+      G6_cars: "",
+      G7_ses_ladder: ""
+    };
+
+    const STEP_TITLES = {
+      1: "خوش‌آمدگویی و شرایط ورود",
+      2: "انتخاب محدوده سکونت روی نقشه تهران",
+      3: "ویژگی‌های محل سکونت و الگوی حضور",
+      4: "ارزیابی ظاهر محدوده",
+      5: "توصیف ظاهر محدوده",
+      6: "تجربه روزمره زندگی در محدوده",
+      7: "تجربه روزمره زندگی در محدوده",
+      8: "تجربه روزمره زندگی در محدوده",
+      9: "ارزیابی تصویر ۱ از ۳",
+      10: "ارزیابی تصویر ۲ از ۳",
+      11: "ارزیابی تصویر ۳ از ۳",
+      12: "نظر تکمیلی و اطلاعات جمعیت‌شناختی"
+    };
+
+    // Scale Definitions
+    const SCALE_INTENSITY_7 = [
+      { val: 1, label: "اصلاً" },
+      { val: 2, label: "خیلی کم" },
+      { val: 3, label: "کم" },
+      { val: 4, label: "متوسط" },
+      { val: 5, label: "زیاد" },
+      { val: 6, label: "خیلی زیاد" },
+      { val: 7, label: "کاملاً" }
+    ];
+
+    const SCALE_AGREEMENT_7 = [
+      { val: 1, label: "کاملاً مخالفم" },
+      { val: 2, label: "مخالفم" },
+      { val: 3, label: "تا حدی مخالفم" },
+      { val: 4, label: "نه موافق نه مخالف" },
+      { val: 5, label: "تا حدی موافقم" },
+      { val: 6, label: "موافقم" },
+      { val: 7, label: "کاملاً موافقم" }
+    ];
+
+    const SCALE_SATISFACTION_7 = [
+      { val: 1, label: "کاملاً ناراضی" },
+      { val: 2, label: "ناراضی" },
+      { val: 3, label: "تا حدی ناراضی" },
+      { val: 4, label: "نه راضی نه ناراضی" },
+      { val: 5, label: "تا حدی راضی" },
+      { val: 6, label: "راضی" },
+      { val: 7, label: "کاملاً راضی" }
+    ];
+
+    // Section C1-C6 Items
+    const ITEMS_C_PART1 = [
+      { key: "C1_beautiful", code: "ج-۱", text: "زیبا" },
+      { key: "C2_boring", code: "ج-۲", text: "کسل‌کننده" },
+      { key: "C3_safe", code: "ج-۳", text: "امن" },
+      { key: "C4_wealthy", code: "ج-۴", text: "مرفه" },
+      { key: "C5_depressing", code: "ج-۵", text: "دلگیر" },
+      { key: "C6_lively", code: "ج-۶", text: "سرزنده" }
+    ];
+
+    // Section C7-C12 Items
+    const ITEMS_C_PART2 = [
+      { key: "C7_active_space", code: "ج-۷", text: "این محدوده فضای فعال و پرجنب‌وجوشی دارد." },
+      { key: "C8_safe_look", code: "ج-۸", text: "ظاهر خیابان‌ها و فضاهای این محدوده حس امنیت می‌دهد." },
+      { key: "C9_monotonous", code: "ج-۹", text: "محیط این محدوده یکنواخت و تکراری به نظر می‌رسد." },
+      { key: "C10_scenic", code: "ج-۱۰", text: "منظر خیابان‌های این محدوده زیبا و چشم‌نواز است." },
+      { key: "C11_gloomy_look", code: "ج-۱۱", text: "ظاهر خیابان‌ها و ساختمان‌های این محدوده حال‌وهوایی دلگیر دارد." },
+      { key: "C12_affluent_look", code: "ج-۱۲", text: "از ظاهر ساختمان‌ها و خیابان‌ها پیداست که این‌جا محدوده‌ای مرفه است." }
+    ];
+
+    // Section D Items (Split into 3 balanced steps of 9, 9, and 8 items)
+    const ITEMS_D_PART1 = [
+      { key: "D1", code: "د-۱", text: "معمولاً مردم در فضاهای عمومی این محدوده حضور و رفت‌وآمد دارند." },
+      { key: "D2", code: "د-۲", text: "در طول روز، هنگام حضور یا رفت‌وآمد در این محدوده احساس امنیت می‌کنم." },
+      { key: "D3", code: "د-۳", text: "بر اساس شناختی که از این محدوده دارم، این محدوده از نظر اقتصادی برخوردار و مرفه است." },
+      { key: "D4", code: "د-۴", text: "در رفت‌وآمدهای روزمره، از مناظر و فضاهای این محدوده لذت می‌برم." },
+      { key: "D5", code: "د-۵", text: "این محدوده در تجربه روزمره، تنوع و تازگی کمی برای من دارد." },
+      { key: "D6", code: "د-۶", text: "فضای کلی این محدوده دلگیر است." },
+      { key: "D7", code: "د-۷", text: "اگر در این محدوده برایم مشکلی پیش بیاید، فکر می‌کنم مردم یا کسبه محل به کمکم می‌آیند." },
+      { key: "D8", code: "د-۸", text: "تعامل و معاشرت اجتماعی بین مردم در فضاهای عمومی این محدوده معمولاً دیده می‌شود." },
+      { key: "D9", code: "د-۹", text: "بیشتر ساکنان این محدوده از نظر مالی وضع خوبی دارند." }
+    ];
+
+    const ITEMS_D_PART2 = [
+      { key: "D10", code: "د-۱۰", text: "اگر مهمانی از شهر دیگری داشته باشم، دوست دارم او را در خیابان‌های این محدوده بگردانم." },
+      { key: "D11", code: "د-۱۱", text: "حضور در این محدوده روحیه آدم را پایین می‌آورد." },
+      { key: "D12", code: "د-۱۲", text: "قدم زدن در این محدوده پس از مدتی برایم کسل‌کننده می‌شود." },
+      { key: "D13", code: "د-۱۳", text: "پس از تاریک شدن هوا، هنگام حضور یا رفت‌وآمد در این محدوده احساس امنیت می‌کنم." },
+      { key: "D14", code: "د-۱۴", text: "پس از تاریک شدن هوا هم در این محدوده رفت‌وآمد و فعالیت جریان دارد." },
+      { key: "D15", code: "د-۱۵", text: "محیط این محدوده در شب (با نورپردازی و فضاهای روشن) هم دلپذیر است." },
+      { key: "D16", code: "د-۱۶", text: "فضای این محدوده در ساعات و روزهای مختلف تقریباً همیشه یک‌جور است." },
+      { key: "D17_attention", code: "د-۱۷", text: "برای اطمینان از دقت پاسخ‌ها، لطفاً در این ردیف گزینه ۶ (موافقم) را انتخاب کنید." },
+      { key: "D18", code: "د-۱۸", text: "غروب‌ها فضای این محدوده دلگیر می‌شود." }
+    ];
+
+    const ITEMS_D_PART3 = [
+      { key: "D19", code: "د-۱۹", text: "قیمت مسکن (خرید یا اجاره) در این محدوده از میانگین تهران بالاتر است." },
+      { key: "D20", code: "د-۲۰", text: "در این محدوده نگرانم که قربانی سرقت، کیف‌قاپی یا آزار خیابانی شوم." },
+      { key: "D21", code: "د-۲۱", text: "در بخش قابل‌توجهی از روز، فعالیت‌های روزمره مانند خرید، رفت‌وآمد یا استفاده از فضاهای عمومی در این محدوده جریان دارد." },
+      { key: "D22", code: "د-۲۲", text: "در این محدوده کار یا فعالیت جالبی برای گذران اوقات فراغت پیدا نمی‌کنم." },
+      { key: "D23", code: "د-۲۳", text: "صداهای محیط این محدوده (مانند ترافیک، بوق و موتورسیکلت) حضور در آن را ناخوشایند می‌کند." },
+      { key: "D24", code: "د-۲۴", text: "قیمت کالاها و خدمات در مغازه‌های این محدوده از بیشتر جاهای تهران بالاتر است." },
+      { key: "D25", code: "د-۲۵", text: "احساس می‌کنم وضعیت این محدوده در سال‌های اخیر رو به افول بوده است." },
+      { key: "D26", code: "د-۲۶", text: "عبور از خیابان‌ها و حرکت در پیاده‌روهای این محدوده، از نظر خودروها و موتورسیکلت‌ها، ایمن است." }
+    ];
+
+    /*************************************************************************
+     * 4. UI HELPERS & REUSABLE COMPONENT RENDERERS
+     *************************************************************************/
+    function toPersianNum(num) {
+      if (num === undefined || num === null) return "";
+      const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+      return String(num).replace(/\d/g, d => persianDigits[d]);
+    }
+
+    function updateHeaderProgress() {
+      const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
+      document.getElementById("step-subtitle").textContent = STEP_TITLES[currentStep] || "";
+      document.getElementById("step-counter-badge").textContent = `گام ${toPersianNum(currentStep)} از ${toPersianNum(TOTAL_STEPS)}`;
+      document.getElementById("step-percent-badge").textContent = `${toPersianNum(pct)}٪`;
+      document.getElementById("progress-bar-fill").style.width = `${pct}%`;
+
+      const prevBtn = document.getElementById("btn-prev");
+      prevBtn.disabled = currentStep === 1;
+
+      const nextBtnText = document.getElementById("btn-next-text");
+      if (currentStep === TOTAL_STEPS) {
+        nextBtnText.textContent = "ثبت نهایی و ارسال پاسخ‌ها";
+      } else {
+        nextBtnText.textContent = "ثبت و مرحله بعد";
+      }
+
+      const quickFillBtn = document.getElementById("btn-quick-fill");
+      if (appConfig.testMode) {
+        quickFillBtn.classList.remove("hidden");
+      } else {
+        quickFillBtn.classList.add("hidden");
+      }
+    }
+
+    function showValidationBanner(msg) {
+      const banner = document.getElementById("validation-banner");
+      const msgEl = document.getElementById("validation-message");
+      msgEl.textContent = msg;
+      banner.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function hideValidationBanner() {
+      document.getElementById("validation-banner").classList.add("hidden");
+    }
+
+    // Renders single-choice pill/card options
+    function renderRadioPills(fieldKey, options, columnsClass = "grid-cols-1 sm:grid-cols-2") {
+      const currentVal = responses[fieldKey];
+      return `
+        <div class="grid ${columnsClass} gap-2.5 mt-3">
+          ${options.map(opt => {
+            const val = typeof opt === "string" ? opt : opt.value;
+            const label = typeof opt === "string" ? opt : opt.label;
+            const isSelected = currentVal === val;
+            return `
+              <button type="button"
+                onclick="selectRadioOption('${fieldKey}', '${val.replace(/'/g, "\\'")}')"
+                class="text-right px-4 py-3 rounded-xl border text-sm transition flex items-center justify-between gap-2 ${
+                  isSelected
+                    ? 'bg-brand-50 border-brand-600 text-brand-900 font-bold shadow-sm ring-1 ring-brand-600'
+                    : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                }">
+                <span>${label}</span>
+                <span class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                  isSelected ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-300'
+                }">
+                  ${isSelected ? '<span class="w-1.5 h-1.5 rounded-full bg-white"></span>' : ''}
+                </span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    function selectRadioOption(fieldKey, value) {
+      responses[fieldKey] = value;
+      hideValidationBanner();
+      renderCurrentStep(false);
+    }
+
+    // Renders 7-point Likert row card (Clean UI without code badges, top legends, or NA buttons)
+    function renderLikertCard(item, scaleList) {
+      const currentVal = responses[item.key];
+
+      return `
+        <div id="card-${item.key}" class="bg-white rounded-2xl border ${currentVal !== '' ? 'border-slate-200' : 'border-slate-200/90'} p-4 sm:p-5 shadow-sm transition-all">
+          <div class="flex items-start justify-between gap-3 mb-3.5">
+            <div class="flex items-start gap-2.5">
+              <span class="w-2 h-2 rounded-full bg-brand-600 shrink-0 mt-2"></span>
+              <p class="text-sm sm:text-base font-bold text-slate-800 leading-relaxed">${item.text}</p>
+            </div>
+            ${currentVal !== '' ? '<span class="text-emerald-600 text-xs font-bold shrink-0">✓ ثبت شد</span>' : ''}
+          </div>
+
+          <!-- 1 to 7 Interactive Pill Buttons -->
+          <div class="grid grid-cols-7 gap-1 sm:gap-2">
+            ${scaleList.map(s => {
+              const isSelected = String(currentVal) === String(s.val);
+              return `
+                <button type="button"
+                  onclick="selectLikertValue('${item.key}', '${s.val}')"
+                  class="likert-btn py-2.5 sm:py-3 px-0.5 sm:px-1 rounded-xl border text-center flex flex-col items-center justify-center gap-1 ${
+                    isSelected
+                      ? 'selected'
+                      : 'bg-slate-50/70 hover:bg-slate-100 border-slate-200 text-slate-700'
+                  }">
+                  <span class="text-sm sm:text-base font-bold leading-none">${toPersianNum(s.val)}</span>
+                  <span class="block text-[9px] sm:text-[10px] leading-tight opacity-90 px-0.5">${s.label}</span>
+                </button>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function selectLikertValue(fieldKey, val) {
+      responses[fieldKey] = val;
+      hideValidationBanner();
+      renderCurrentStep(false);
+    }
+
+    /*************************************************************************
+     * 5. STEP-BY-STEP TEMPLATES (STEPS 1 TO 12 + DISQUALIFICATION + SUCCESS)
+     *************************************************************************/
+    function renderCurrentStep(scrollTop = true) {
+      updateHeaderProgress();
+      const viewport = document.getElementById("survey-viewport");
+      document.getElementById("nav-controls").classList.remove("hidden");
+
+      // Re-trigger subtle animation only when changing steps
+      if (scrollTop) {
+        viewport.classList.remove("step-enter");
+        void viewport.offsetWidth;
+        viewport.classList.add("step-enter");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      switch (currentStep) {
+        case 1:
+          viewport.innerHTML = buildStep1HTML();
+          break;
+        case 2:
+          viewport.innerHTML = buildStep2HTML();
+          setTimeout(() => initTehranMap(), 60);
+          break;
+        case 3:
+          viewport.innerHTML = buildStep3HTML();
+          break;
+        case 4:
+          viewport.innerHTML = buildStep4HTML();
+          break;
+        case 5:
+          viewport.innerHTML = buildStep5HTML();
+          break;
+        case 6:
+          viewport.innerHTML = buildStep6HTML();
+          break;
+        case 7:
+          viewport.innerHTML = buildStep7HTML();
+          break;
+        case 8:
+          viewport.innerHTML = buildStep8HTML();
+          break;
+        case 9:
+          viewport.innerHTML = buildStepImageEvaluationHTML(1, appConfig.image1Url);
+          break;
+        case 10:
+          viewport.innerHTML = buildStepImageEvaluationHTML(2, appConfig.image2Url);
+          break;
+        case 11:
+          viewport.innerHTML = buildStepImageEvaluationHTML(3, appConfig.image3Url);
+          break;
+        case 12:
+          viewport.innerHTML = buildStep12HTML();
+          break;
+      }
+    }
+
+    /* ---------------- STEP 1: WELCOME & SCREENING (پ-۱ تا پ-۴) ---------------- */
+    function buildStep1HTML() {
+      return `
+        <div class="space-y-6">
+          <!-- Intro Welcome Card -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+              <span class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-700 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">
+                🏙️ پژوهش علمی ادراک محیطی ساکنان تهران
+              </span>
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
+                ⏱️ زمان تقریبی: ۱۲ تا ۱۵ دقیقه
+              </span>
+            </div>
+
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-800">سلام و سپاس از همراهی شما در این پژوهش</h2>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              این پژوهش با هدف بررسی <strong>ادراک ساکنان از کیفیت محیطی محدوده اطراف محل سکونت آن‌ها در شهر تهران</strong> انجام می‌شود و نتایج آن صرفاً برای اهداف علمی و پژوهشی استفاده خواهد شد.
+            </p>
+
+            <!-- Key Assurance Pills -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div class="text-xs font-bold text-slate-800 mb-1">🔒 کاملاً ناشناس و محرمانه</div>
+                <p class="text-xs text-slate-600 leading-relaxed">نام، شماره تماس یا نشانی دقیق شما پرسیده نمی‌شود و اطلاعات کاملاً محرمانه و ناشناس تحلیل می‌شوند.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div class="text-xs font-bold text-slate-800 mb-1">🚶 بر پایه تجربه روزمره</div>
+                <p class="text-xs text-slate-600 leading-relaxed">لطفاً بر اساس تجربه واقعی و معمول خود از اطراف محل زندگی پاسخ دهید، نه یک اتفاق یا روز خاص.</p>
+              </div>
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div class="text-xs font-bold text-slate-800 mb-1">✨ بدون پاسخ درست یا غلط</div>
+                <p class="text-xs text-slate-600 leading-relaxed">شرکت کاملاً داوطلبانه است و صرفاً دیدگاه و برداشت شخصی شما برای ما اهمیت دارد.</p>
+              </div>
+            </div>
+
+            <div class="text-xs text-slate-600 pt-3 border-t border-slate-100 flex flex-wrap justify-between gap-2">
+              <span><strong>مجری پژوهش:</strong> ${appConfig.researcherName}</span>
+              <span><strong>راه ارتباطی:</strong> <a href="mailto:${appConfig.researcherContact}" dir="ltr" class="text-brand-700 font-semibold hover:underline">${appConfig.researcherContact}</a></span>
+            </div>
+          </div>
+
+          <!-- Screening Questions Card -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-6">
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900 border-b border-slate-100 pb-3">پیش از شروع</h3>
+
+            <!-- P1 -->
+            <div>
+              <label class="block text-sm sm:text-base font-bold text-slate-800">
+                آیا با شرکت در این پژوهش موافقید؟
+              </label>
+              ${renderRadioPills("P1_consent", ["بله، موافقم و ادامه می‌دهم", "خیر"])}
+            </div>
+
+            <!-- P2 -->
+            <div>
+              <label class="block text-sm sm:text-base font-bold text-slate-800">
+                آیا در حال حاضر ساکن شهر تهران هستید؟
+              </label>
+              ${renderRadioPills("P2_tehran_resident", ["بله", "خیر"])}
+            </div>
+
+            <!-- P3 -->
+            <div>
+              <label class="block text-sm sm:text-base font-bold text-slate-800">
+                آیا ۱۸ سال یا بیشتر سن دارید؟
+              </label>
+              ${renderRadioPills("P3_age_18plus", ["بله", "خیر"])}
+            </div>
+
+            <!-- P4 -->
+            <div>
+              <label class="block text-sm sm:text-base font-bold text-slate-800">
+                چه مدت است که در محل سکونت فعلی خود زندگی می‌کنید؟
+              </label>
+              ${renderRadioPills("P4_residence_duration", [
+                "کمتر از ۶ ماه",
+                "۶ ماه تا ۱ سال",
+                "۱ تا ۳ سال",
+                "۳ تا ۵ سال",
+                "۵ تا ۱۰ سال",
+                "بیش از ۱۰ سال"
+              ], "grid-cols-1 sm:grid-cols-3")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------------- STEP 2: TEHRAN INTERACTIVE MAP (الف-۱) ---------------- */
+    function buildStep2HTML() {
+      const hasCoords = responses.A1_lat !== "" && responses.A1_lng !== "";
+      const isTextFallback = responses.A1_location_mode === "text";
+
+      return `
+        <div class="space-y-5">
+          <!-- Scope Instruction Banner -->
+          <div class="bg-brand-50/90 border border-brand-200 rounded-2xl p-4 sm:p-5 text-brand-950">
+            <p class="text-xs sm:text-sm text-brand-900 leading-relaxed">
+              در پاسخ به همه پرسش‌های این پرسشنامه، لطفاً <strong>محدوده اطراف محل سکونت خود</strong> را در نظر بگیرید؛ یعنی فضایی که در <strong>شعاع حدود ۵ دقیقه پیاده‌روی (تقریباً ۵۰۰ متر)</strong> از محل زندگی شما قرار دارد. پس از ثبت نقطه روی نقشه، دایره‌ای به شعاع ۵۰۰ متر نمایش داده می‌شود.
+            </p>
+          </div>
+
+          <!-- Prominent Main Question Prompt -->
+          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
+            <h2 class="text-base sm:text-xl font-extrabold text-slate-900 leading-snug">
+              لطفاً نزدیک‌ترین تقاطع یا میدان به محل سکونت خود را روی نقشه مشخص کنید:
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">نیازی به ثبت نشانی دقیق، شماره پلاک یا واحد مسکونی نیست.</p>
+          </div>
+
+          <!-- Map Search & Quick District Filter Card -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
+
+            <!-- Search Controls Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+              <!-- District Jump Dropdown -->
+              <div class="sm:col-span-5">
+                <label class="block text-xs font-bold text-slate-600 mb-1">پرش سریع به منطقه شهرداری:</label>
+                <select id="map-district-select" onchange="jumpToDistrict(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-brand-600">
+                  <option value="">انتخاب منطقه (۱ تا ۲۲)...</option>
+                  ${TEHRAN_DISTRICTS.map(d => `<option value="${d.id}" ${String(responses.A1_district) === String(d.id) ? 'selected' : ''}>${d.name}</option>`).join("")}
+                </select>
+              </div>
+
+              <!-- Persian POI / Intersection Search Box -->
+              <div class="sm:col-span-7 relative">
+                <label class="block text-xs font-bold text-slate-600 mb-1">جستجوی نام محله، میدان یا تقاطع در تهران:</label>
+                <div class="flex gap-1.5">
+                  <input type="text" id="map-search-input"
+                    oninput="handleLocalPoiSearch(this.value)"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault(); triggerOnlinePoiSearch();}"
+                    placeholder="مثلاً: میدان ونک، صادقیه، هفت‌حوض، یوسف‌آباد..."
+                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-brand-600" />
+                  <button type="button" onclick="triggerOnlinePoiSearch()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold shrink-0">
+                    جستجو
+                  </button>
+                </div>
+
+                <!-- Instant Autocomplete Dropdown -->
+                <div id="poi-search-results" class="hidden absolute left-0 right-0 top-full mt-1 bg-white rounded-xl border border-slate-200 shadow-xl max-h-56 overflow-y-auto z-30 divide-y divide-slate-100"></div>
+              </div>
+            </div>
+
+            <!-- Interactive Map Container -->
+            <div class="relative rounded-2xl overflow-hidden border border-slate-300 shadow-inner">
+              <div id="tehran-map"></div>
+            </div>
+
+            <!-- Status Pill Below Map -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <div id="map-status-badge" class="text-xs sm:text-sm font-medium ${hasCoords ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-amber-800 bg-amber-50 border-amber-200'} px-3.5 py-2 rounded-xl border flex items-center gap-2">
+                ${hasCoords
+                  ? `<span>✅ محدوده ۵۰۰ متری روی نقشه ثبت شد (عرض جغرافیایی: <b dir="ltr">${Number(responses.A1_lat).toFixed(4)}</b>، طول جغرافیایی: <b dir="ltr">${Number(responses.A1_lng).toFixed(4)}</b>)</span>`
+                  : `<span>👆 لطفاً روی نزدیک‌ترین میدان یا تقاطع به محل سکونت خود روی نقشه کلیک کنید.</span>`
+                }
+              </div>
+
+              <button type="button" onclick="toggleMapFallback()" class="text-xs font-semibold text-slate-600 hover:text-brand-700 underline underline-offset-4 py-1">
+                ${isTextFallback ? "بازگشت به انتخاب از روی نقشه" : "اگر امکان کار با نقشه را ندارید، اینجا کلیک کنید"}
+              </button>
+            </div>
+
+            <!-- Fallback Text Input Section (For users who cannot use the map) -->
+            <div id="map-fallback-box" class="${isTextFallback ? 'block' : 'hidden'} mt-3 pt-4 border-t border-slate-200 bg-slate-50 p-4 rounded-xl space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs sm:text-sm font-bold text-slate-800">ثبت متنی محدوده (در صورت عدم امکان کار با نقشه)</h4>
+                <span class="text-[11px] text-slate-500">حداقل منطقه و نام محله/تقاطع را وارد کنید</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">منطقه شهرداری (۱ تا ۲۲)</label>
+                  <select onchange="responses.A1_district = this.value; responses.A1_location_mode = 'text';" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm">
+                    <option value="">انتخاب منطقه...</option>
+                    ${Array.from({length: 22}, (_, i) => i + 1).map(n => `
+                      <option value="${n}" ${String(responses.A1_district) === String(n) ? 'selected' : ''}>منطقه ${toPersianNum(n)}</option>
+                    `).join("")}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">نام محله</label>
+                  <input type="text" value="${responses.A1_neighborhood}" oninput="responses.A1_neighborhood = this.value; responses.A1_location_mode = 'text';" placeholder="مثلاً: یوسف‌آباد" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">نزدیک‌ترین تقاطع یا میدان</label>
+                  <input type="text" value="${responses.A1_intersection}" oninput="responses.A1_intersection = this.value; responses.A1_location_mode = 'text';" placeholder="مثلاً: میدان سلماس" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm" />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------------- STEP 3: SECTION A (الف-۲ تا الف-۸) & SECTION B (ب-۱) ---------------- */
+    function buildStep3HTML() {
+      const presenceOptions = [
+        "صبح",
+        "ظهر و بعدازظهر",
+        "عصر",
+        "شب (پس از تاریک شدن هوا)",
+        "تقریباً هیچ‌وقت"
+      ];
+
+      return `
+        <div class="space-y-5">
+          <div class="bg-slate-100 border border-slate-200 text-slate-700 rounded-2xl p-4 sm:p-5">
+            <p class="text-xs sm:text-sm leading-relaxed">
+              در پاسخ به تمام پرسش‌ها، همان <strong>محدوده ۵۰۰ متری اطراف محل سکونت خود (حدود ۵ دقیقه پیاده‌روی)</strong> را در نظر بگیرید.
+            </p>
+          </div>
+
+          <!-- A2: Street Type -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              محل سکونت شما در کنار چه نوع معبری قرار دارد؟
+            </label>
+            ${renderRadioPills("A2_street_type", ["خیابان اصلی", "خیابان فرعی", "کوچه", "کوچه بن‌بست", "سایر"], "grid-cols-2 sm:grid-cols-3")}
+            ${responses.A2_street_type === "سایر" ? `
+              <div class="mt-3">
+                <input type="text" value="${responses.A2_other}" oninput="responses.A2_other = this.value" placeholder="لطفاً نوع معبر را بنویسید (مثلاً: بزرگراه، بن‌بست اختصاصی، پیاده‌راه و...)" class="w-full px-3.5 py-2.5 rounded-xl border border-brand-500 bg-brand-50/30 text-sm focus:outline-none" />
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- A3: Tenure -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              وضعیت مالکیت محل سکونت شما چیست؟
+            </label>
+            ${renderRadioPills("A3_tenure", ["مالک", "مستأجر (اجاره یا رهن)", "سایر (سازمانی، منزل اقوام و …)"], "grid-cols-1 sm:grid-cols-3")}
+          </div>
+
+          <!-- A4: Familiarity -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              تا چه اندازه با خیابان‌ها، فضاها و محیط اطراف محل سکونت خود آشنا هستید؟
+            </label>
+            ${renderRadioPills("A4_familiarity", ["بسیار کم", "کم", "متوسط", "زیاد", "بسیار زیاد"], "grid-cols-2 sm:grid-cols-5")}
+          </div>
+
+          <!-- A5: Walking Frequency -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              هر چند وقت یک‌بار در این محدوده پیاده‌روی یا رفت‌وآمد پیاده (برای خرید، کار، تفریح و …) دارید؟
+            </label>
+            ${renderRadioPills("A5_walk_freq", ["تقریباً هر روز", "چند بار در هفته", "چند بار در ماه", "به‌ندرت", "هرگز"], "grid-cols-2 sm:grid-cols-5")}
+          </div>
+
+          <!-- A6: Dominant Mode -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              معمولاً خیابان‌های همین محدوده را بیشتر به چه شکلی طی می‌کنید؟ <span class="text-xs font-normal text-slate-500">(فقط یک گزینه)</span>
+            </label>
+            ${renderRadioPills("A6_travel_mode", ["پیاده", "دوچرخه", "موتورسیکلت", "خودروی شخصی", "تاکسی یا تاکسی اینترنتی", "اتوبوس یا مترو"], "grid-cols-2 sm:grid-cols-3")}
+          </div>
+
+          <!-- A7: Hours of Presence (Multi-select with exclusive 'تقریباً هیچ‌وقت') -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              معمولاً در چه ساعاتی در فضاهای عمومی این محدوده (خیابان، پیاده‌رو، پارک، مغازه‌ها) حضور دارید؟
+              <span class="text-xs font-normal text-brand-700">(می‌توانید بیش از یک گزینه را انتخاب کنید)</span>
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-3">
+              ${presenceOptions.map(opt => {
+                const isChecked = responses.A7_presence_hours.includes(opt);
+                return `
+                  <button type="button"
+                    onclick="toggleA7Option('${opt}')"
+                    class="text-right px-4 py-3 rounded-xl border text-sm transition flex items-center justify-between gap-2 ${
+                      isChecked
+                        ? 'bg-brand-50 border-brand-600 text-brand-900 font-bold shadow-sm ring-1 ring-brand-600'
+                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                    }">
+                    <span>${opt}</span>
+                    <span class="w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                      isChecked ? 'border-brand-600 bg-brand-600 text-white text-xs' : 'border-slate-300'
+                    }">
+                      ${isChecked ? '✓' : ''}
+                    </span>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+          </div>
+
+          <!-- A8: Physical Change -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              در ۱۰ سال گذشته، ظاهر این محدوده (مثلاً به دلیل ساخت‌وساز، نوسازی یا تغییر کاربری‌ها) تا چه اندازه تغییر کرده است؟
+            </label>
+            ${renderRadioPills("A8_physical_change", ["تغییری نکرده", "کم", "متوسط", "زیاد", "بسیار زیاد", "نمی‌دانم"], "grid-cols-2 sm:grid-cols-3")}
+          </div>
+
+          <!-- B1: Overall Satisfaction -->
+          <div class="pt-1">
+            ${renderLikertCard(
+              { key: "B1_overall_satisfaction", code: "ب-۱", text: "به‌طور کلی، تا چه اندازه از زندگی در این محدوده رضایت دارید؟" },
+              SCALE_SATISFACTION_7
+            )}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleA7Option(option) {
+      let arr = [...responses.A7_presence_hours];
+      if (option === "تقریباً هیچ‌وقت") {
+        arr = arr.includes("تقریباً هیچ‌وقت") ? [] : ["تقریباً هیچ‌وقت"];
+      } else {
+        arr = arr.filter(item => item !== "تقریباً هیچ‌وقت");
+        if (arr.includes(option)) {
+          arr = arr.filter(item => item !== option);
+        } else {
+          arr.push(option);
+        }
+      }
+      responses.A7_presence_hours = arr;
+      hideValidationBanner();
+      renderCurrentStep(false);
+    }
+
+    /* ---------------- STEP 4: SECTION C PART 1 (ج-۱ تا ج-۶) ---------------- */
+    function buildStep4HTML() {
+      return `
+        <div class="space-y-4">
+          <div class="bg-amber-50/90 border border-amber-200 rounded-2xl p-4 sm:p-5 text-amber-950">
+            <p class="text-xs sm:text-sm text-amber-900 leading-relaxed">
+              در این بخش <strong>فقط ظاهر محدوده</strong> را در نظر بگیرید؛ یعنی آنچه در یک <strong>عکس روزانه از خیابان‌های آن</strong> دیده می‌شود (مانند ساختمان‌ها، پیاده‌روها، درختان، نظافت و تابلوها). لطفاً آنچه از رفتار مردم، اتفاقات محله یا وضعیت آن در شب می‌دانید را کنار بگذارید.
+            </p>
+          </div>
+
+          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+              صرفاً از نظر ظاهر، این محدوده تا چه اندازه … به نظر می‌رسد؟
+            </h2>
+          </div>
+
+          <div class="space-y-3.5">
+            ${ITEMS_C_PART1.map(item => renderLikertCard(item, SCALE_INTENSITY_7)).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------------- STEP 5: SECTION C PART 2 (ج-۷ تا ج-۱۲) ---------------- */
+    function buildStep5HTML() {
+      return `
+        <div class="space-y-4">
+          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+              اکنون، باز هم فقط بر اساس ظاهر محدوده، میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید.
+            </h2>
+          </div>
+
+          <div class="space-y-3.5">
+            ${ITEMS_C_PART2.map(item => renderLikertCard(item, SCALE_AGREEMENT_7)).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------------- STEP 6: SECTION D PART 1 (د-۱ تا د-۹) ---------------- */
+    function buildStep6HTML() {
+      return `
+        <div class="space-y-4">
+          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+              بر اساس تجربه روزمره و شناختی که از زندگی در این محدوده دارید (نه فقط ظاهر آن)، میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید.
+            </h2>
+          </div>
+
+          <div class="space-y-3.5">
+            ${ITEMS_D_PART1.map(item => renderLikertCard(item, SCALE_AGREEMENT_7)).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------------- STEP 7: SECTION D PART 2 (د-۱۰ تا د-۱۸) ---------------- */
+    function buildStep7HTML() {
+      return `
+        <div class="space-y-4">
+          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+              بر اساس تجربه روزمره و شناختی که از زندگی در این محدوده دارید (نه فقط ظاهر آن)، میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید.
+            </h2>
+          </div>
+
+          <div class="space-y-3.5">
+            ${ITEMS_D_PART2.map(item => renderLikertCard(item, SCALE_AGREEMENT_7)).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------------- STEP 8: SECTION D PART 3 (د-۱۹ تا د-۲۶) ---------------- */
+    function buildStep8HTML() {
+      return `
+        <div class="space-y-4">
+          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
+            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+              بر اساس تجربه روزمره و شناختی که از زندگی در این محدوده دارید (نه فقط ظاهر آن)، میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید.
+            </h2>
+          </div>
+
+          <div class="space-y-3.5">
+            ${ITEMS_D_PART3.map(item => renderLikertCard(item, SCALE_AGREEMENT_7)).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------------- STEPS 9, 10, 11: SECTION E IMAGE EVALUATIONS (تصویر ۱ تا ۳) ---------------- */
+    function buildStepImageEvaluationHTML(imgIndex, imgUrl) {
+      const pfx = `E${imgIndex}`;
+      const persianIdx = toPersianNum(imgIndex);
+      const codePrefix = `هـ${persianIdx}`;
+      const fallbackSvgUri = getTehranStreetFallbackDataUri(imgIndex);
+
+      const imageItems = [
+        { key: `${pfx}_1`, code: `${codePrefix}-۱`, text: "زیبا" },
+        { key: `${pfx}_2`, code: `${codePrefix}-۲`, text: "کسل‌کننده" },
+        { key: `${pfx}_3`, code: `${codePrefix}-۳`, text: "امن" },
+        { key: `${pfx}_4`, code: `${codePrefix}-۴`, text: "مرفه" },
+        { key: `${pfx}_5`, code: `${codePrefix}-۵`, text: "دلگیر" },
+        { key: `${pfx}_6`, code: `${codePrefix}-۶`, text: "سرزنده" }
+      ];
+
+      return `
+        <div class="space-y-5">
+          <!-- Info Banner -->
+          <div class="bg-slate-800 text-white rounded-2xl p-4 sm:p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-sm sm:text-base font-bold">تصویر ${persianIdx} از ۳</span>
+              <span class="text-xs bg-white/15 px-2.5 py-1 rounded-full">تصاویر خیابان‌های تهران</span>
+            </div>
+            <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+              این تصاویر به محدوده زندگی شما مربوط نیستند و برای همه شرکت‌کنندگان یکسان‌اند. لطفاً تصویر زیر را <strong>فقط بر اساس آنچه در آن می‌بینید</strong> ارزیابی کنید.
+            </p>
+          </div>
+
+          <!-- Sticky Image Card so user can see image while scrolling scales -->
+          <div class="sticky top-[62px] z-20 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200 p-2.5 sm:p-3 shadow-md">
+            <div class="relative group rounded-xl overflow-hidden bg-slate-900 aspect-[16/9] sm:aspect-[21/9] flex items-center justify-center">
+              <img id="step-street-img-${imgIndex}"
+                src="${imgUrl}"
+                alt="تصویر ${persianIdx} از خیابان‌های تهران"
+                onerror="this.onerror=null; this.src='${fallbackSvgUri}';"
+                onclick="openImageZoom(this.src, 'تصویر ${persianIdx}')"
+                class="w-full h-full object-cover cursor-zoom-in transition duration-300 group-hover:scale-[1.01]" />
+
+              <button type="button"
+                onclick="openImageZoom(document.getElementById('step-street-img-${imgIndex}').src, 'تصویر ${persianIdx}')"
+                class="absolute bottom-2.5 left-2.5 bg-slate-900/80 hover:bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg backdrop-blur-sm flex items-center gap-1.5 shadow">
+                <span>🔍 بزرگ‌نمایی تصویر</span>
+              </button>
+            </div>
+            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 text-center mt-3 mb-1">
+              این مکان تا چه اندازه … به نظر می‌رسد؟
+            </h2>
+          </div>
+
+          <!-- 6 Rating Scales for Image -->
+          <div class="space-y-3">
+            ${imageItems.map(item => renderLikertCard(item, SCALE_INTENSITY_7)).join("")}
+          </div>
+
+          <!-- Familiarity Question (هـ-۷) -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              آیا مکان این تصویر را می‌شناسید؟
+            </label>
+            ${renderRadioPills(`${pfx}_7_know`, ["بله", "خیر"], "grid-cols-2")}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------------- STEP 12: OPEN QUESTION (و-۱) & DEMOGRAPHICS (ز-۱ تا ز-۷) ---------------- */
+    function buildStep12HTML() {
+      return `
+        <div class="space-y-6">
+          <!-- Section F: Open-ended Optional Question -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-md">پرسش باز (اختیاری)</span>
+              <span class="text-xs text-slate-400">پاسخ به این سوال اختیاری است</span>
+            </div>
+            <label class="block text-base sm:text-lg font-extrabold text-slate-900 leading-relaxed">
+              به نظر شما، مهم‌ترین ویژگی این محدوده که در ظاهر آن دیده نمی‌شود اما در زندگی روزمره در آن اهمیت دارد، چیست؟
+            </label>
+            <textarea rows="3"
+              oninput="responses.F1_open_comment = this.value"
+              placeholder="دیدگاه یا تجربه خود را اینجا بنویسید (اختیاری)..."
+              class="w-full p-3.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-600">${responses.F1_open_comment}</textarea>
+          </div>
+
+          <!-- Section G: Demographics Header -->
+          <div class="bg-slate-800 text-white rounded-2xl p-4 sm:p-5">
+            <h2 class="text-sm sm:text-base font-bold">اطلاعات جمعیت‌شناختی</h2>
+            <p class="text-xs text-slate-300 mt-1">اطلاعات این بخش فقط برای تحلیل آماری استفاده می‌شود و پاسخ‌ها کاملاً به‌صورت ناشناس بررسی خواهند شد.</p>
+          </div>
+
+          <!-- G1: Age -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              سن شما چقدر است؟
+            </label>
+            ${renderRadioPills("G1_age_group", [
+              "۱۸ تا ۲۴ سال",
+              "۲۵ تا ۳۴ سال",
+              "۳۵ تا ۴۴ سال",
+              "۴۵ تا ۵۴ سال",
+              "۵۵ تا ۶۴ سال",
+              "۶۵ سال و بیشتر"
+            ], "grid-cols-2 sm:grid-cols-3")}
+          </div>
+
+          <!-- G2: Gender -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              جنسیت شما چیست؟
+            </label>
+            ${renderRadioPills("G2_gender", ["زن", "مرد", "ترجیح می‌دهم پاسخ ندهم"], "grid-cols-1 sm:grid-cols-3")}
+          </div>
+
+          <!-- G3: Education -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              سطح تحصیلات شما چیست؟
+            </label>
+            ${renderRadioPills("G3_education", [
+              "کمتر از دیپلم",
+              "دیپلم",
+              "کاردانی",
+              "کارشناسی",
+              "کارشناسی ارشد",
+              "دکتری"
+            ], "grid-cols-2 sm:grid-cols-3")}
+          </div>
+
+          <!-- G4: Related Major/Job -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              آیا رشته تحصیلی یا شغل شما با معماری، شهرسازی، طراحی منظر یا عمران مرتبط است؟
+            </label>
+            ${renderRadioPills("G4_urban_field", ["بله", "خیر"], "grid-cols-2")}
+          </div>
+
+          <!-- G5: Household Size -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800 mb-2">
+              تعداد اعضای خانوار شما، با احتساب خودتان، چند نفر است؟
+            </label>
+            <div class="flex items-center gap-3">
+              <input type="number" min="1" max="20"
+                value="${responses.G5_household_size}"
+                oninput="responses.G5_household_size = this.value; hideValidationBanner();"
+                placeholder="مثلاً: ۳"
+                class="w-32 px-4 py-2.5 rounded-xl border border-slate-300 text-center font-bold text-base focus:outline-none focus:border-brand-600" />
+              <span class="text-sm text-slate-600 font-medium">نفر</span>
+            </div>
+          </div>
+
+          <!-- G6: Household Cars -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <label class="block text-sm sm:text-base font-bold text-slate-800">
+              خانوار شما چند خودروی شخصی در اختیار دارد؟
+            </label>
+            ${renderRadioPills("G6_cars", ["هیچ", "۱ دستگاه", "۲ دستگاه", "۳ دستگاه یا بیشتر"], "grid-cols-2 sm:grid-cols-4")}
+          </div>
+
+          <!-- G7: 10-Step Socioeconomic Ladder -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <label class="block text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+              نردبانی ده‌پله‌ای را تصور کنید که جایگاه خانوارها را در جامعه تهران نشان می‌دهد.
+            </label>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              در <strong>بالاترین پله (۱۰)</strong> کسانی هستند که بیشترین درآمد، بالاترین تحصیلات و معتبرترین شغل‌ها را دارند و در <strong>پایین‌ترین پله (۱)</strong> کسانی که کمترین درآمد، کمترین تحصیلات و کم‌اعتبارترین شغل‌ها را دارند یا بیکارند. به نظر شما خانوار شما روی کدام پله قرار دارد؟
+            </p>
+
+            <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 px-1">
+              <span>پله ۱ (پایین‌ترین جایگاه)</span>
+              <span>پله ۱۰ (بالاترین جایگاه)</span>
+            </div>
+
+            <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+              ${Array.from({length: 10}, (_, i) => i + 1).map(stepNum => {
+                const isSelected = String(responses.G7_ses_ladder) === String(stepNum);
+                return `
+                  <button type="button"
+                    onclick="selectLikertValue('G7_ses_ladder', '${stepNum}')"
+                    class="likert-btn py-3 rounded-xl border font-bold text-sm sm:text-base flex flex-col items-center justify-center ${
+                      isSelected
+                        ? 'selected'
+                        : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+                    }">
+                    <span>${toPersianNum(stepNum)}</span>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /*************************************************************************
+     * 6. TEHRAN LEAFLET MAP & LOCAL + ONLINE PERSIAN POI SEARCH
+     *************************************************************************/
+    function initTehranMap() {
+      const container = document.getElementById("tehran-map");
+      if (!container) return;
+
+      if (mapInstance) {
+        mapInstance.remove();
+        mapInstance = null;
+      }
+
+      // Default center: central Tehran (or previously chosen pin)
+      const initialLat = responses.A1_lat ? Number(responses.A1_lat) : 35.7219;
+      const initialLng = responses.A1_lng ? Number(responses.A1_lng) : 51.3890;
+      const initialZoom = responses.A1_lat ? 15 : 11;
+
+      mapInstance = L.map("tehran-map", {
+        center: [initialLat, initialLng],
+        zoom: initialZoom,
+        zoomControl: true
+      });
+
+      // Standard OpenStreetMap Tiles - Native Persian labels inside Tehran & works without VPN in Iran
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(mapInstance);
+
+      // If user already dropped a pin, restore pin + 500m circle
+      if (responses.A1_lat && responses.A1_lng) {
+        placePinAndBuffer(Number(responses.A1_lat), Number(responses.A1_lng), false);
+      }
+
+      // Map click handler
+      mapInstance.on("click", function(e) {
+        placePinAndBuffer(e.latlng.lat, e.latlng.lng, true);
+      });
+    }
+
+    function placePinAndBuffer(lat, lng, panTo = true) {
+      responses.A1_lat = Number(lat.toFixed(6));
+      responses.A1_lng = Number(lng.toFixed(6));
+      responses.A1_location_mode = "map";
+      hideValidationBanner();
+
+      if (!mapInstance) return;
+
+      if (mapMarker) {
+        mapInstance.removeLayer(mapMarker);
+      }
+      if (mapCircle) {
+        mapInstance.removeLayer(mapCircle);
+      }
+
+      mapMarker = L.marker([lat, lng], { draggable: true }).addTo(mapInstance);
+      mapMarker.bindPopup("<div dir='rtl' class='text-xs font-bold text-slate-800'>مرکز محدوده ۵۰۰ متری اطراف محل سکونت شما</div>").openPopup();
+
+      // Drag end handler
+      mapMarker.on("dragend", function(ev) {
+        const pos = ev.target.getLatLng();
+        placePinAndBuffer(pos.lat, pos.lng, false);
+      });
+
+      // Draw 500m walking buffer circle
+      mapCircle = L.circle([lat, lng], {
+        radius: 500,
+        color: "#0f766e",
+        weight: 2,
+        fillColor: "#14b8a6",
+        fillOpacity: 0.2
+      }).addTo(mapInstance);
+
+      if (panTo) {
+        mapInstance.setView([lat, lng], Math.max(mapInstance.getZoom(), 15), { animate: true });
+      }
+
+      // Update badge below map
+      const badge = document.getElementById("map-status-badge");
+      if (badge) {
+        badge.className = "text-xs sm:text-sm font-medium text-emerald-700 bg-emerald-50 border-emerald-200 px-3.5 py-2 rounded-xl border flex items-center gap-2";
+        badge.innerHTML = `<span>✅ محدوده ۵۰۰ متری روی نقشه ثبت شد (عرض جغرافیایی: <b dir="ltr">${responses.A1_lat.toFixed(4)}</b>، طول جغرافیایی: <b dir="ltr">${responses.A1_lng.toFixed(4)}</b>)</span>`;
+      }
+    }
+
+    function jumpToDistrict(districtId) {
+      if (!districtId) return;
+      responses.A1_district = districtId;
+      const dist = TEHRAN_DISTRICTS.find(d => String(d.id) === String(districtId));
+      if (dist && mapInstance) {
+        mapInstance.setView([dist.lat, dist.lng], 14, { animate: true });
+      }
+    }
+
+    function handleLocalPoiSearch(query) {
+      const resultsBox = document.getElementById("poi-search-results");
+      if (!resultsBox) return;
+
+      const q = (query || "").trim();
+      if (q.length < 2) {
+        resultsBox.classList.add("hidden");
+        resultsBox.innerHTML = "";
+        return;
+      }
+
+      const matches = TEHRAN_POIS.filter(p => p.title.includes(q)).slice(0, 8);
+      if (matches.length === 0) {
+        resultsBox.innerHTML = `
+          <div class="p-3 text-xs text-slate-600 flex items-center justify-between">
+            <span>موردی در فهرست فوری یافت نشد.</span>
+            <button type="button" onclick="triggerOnlinePoiSearch()" class="text-brand-700 font-bold hover:underline">جستجوی آنلاین در نقشه تهران ↵</button>
+          </div>
+        `;
+        resultsBox.classList.remove("hidden");
+        return;
+      }
+
+      resultsBox.innerHTML = matches.map(m => `
+        <button type="button"
+          onclick="selectPoiFromSearch(${m.lat}, ${m.lng}, '${m.title}', ${m.district})"
+          class="w-full text-right px-3.5 py-2.5 hover:bg-brand-50 text-xs sm:text-sm flex items-center justify-between transition">
+          <span class="font-semibold text-slate-800">📍 ${m.title}</span>
+          <span class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">منطقه ${toPersianNum(m.district)}</span>
+        </button>
+      `).join("");
+      resultsBox.classList.remove("hidden");
+    }
+
+    async function triggerOnlinePoiSearch() {
+      const input = document.getElementById("map-search-input");
+      const resultsBox = document.getElementById("poi-search-results");
+      if (!input || !resultsBox) return;
+
+      const q = input.value.trim();
+      if (!q) return;
+
+      resultsBox.classList.remove("hidden");
+      resultsBox.innerHTML = `<div class="p-3 text-xs text-slate-500">در حال جستجو در معابر و محله‌های تهران...</div>`;
+
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q + " تهران")}&viewbox=51.05,35.88,51.65,35.55&bounded=1&accept-language=fa&limit=6`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+          resultsBox.innerHTML = `<div class="p-3 text-xs text-rose-600">مکانی با این نام در تهران یافت نشد. می‌توانید مستقیماً نقشه را جابه‌جا کرده و روی تقاطع کلیک کنید.</div>`;
+          return;
+        }
+
+        resultsBox.innerHTML = data.map(item => {
+          const shortTitle = item.display_name.split("،").slice(0, 3).join("، ");
+          return `
+            <button type="button"
+              onclick="selectPoiFromSearch(${item.lat}, ${item.lon}, '${shortTitle.replace(/'/g, "")}', '')"
+              class="w-full text-right px-3.5 py-2.5 hover:bg-brand-50 text-xs flex items-center justify-between transition">
+              <span class="font-medium text-slate-800 truncate">${shortTitle}</span>
+              <span class="text-[10px] text-brand-700 shrink-0 mr-2">انتخاب روی نقشه</span>
+            </button>
+          `;
+        }).join("");
+      } catch (err) {
+        resultsBox.innerHTML = `<div class="p-3 text-xs text-amber-700">جستجوی آنلاین در دسترس نیست؛ لطفاً از منوی مناطق شهرداری استفاده کنید یا روی نقشه کلیک نمایید.</div>`;
+      }
+    }
+
+    function selectPoiFromSearch(lat, lng, title, district) {
+      const resultsBox = document.getElementById("poi-search-results");
+      if (resultsBox) resultsBox.classList.add("hidden");
+
+      const input = document.getElementById("map-search-input");
+      if (input) input.value = title;
+
+      if (district) responses.A1_district = district;
+      responses.A1_intersection = title;
+
+      placePinAndBuffer(Number(lat), Number(lng), true);
+    }
+
+    function toggleMapFallback() {
+      responses.A1_location_mode = responses.A1_location_mode === "text" ? "map" : "text";
+      renderCurrentStep(false);
+      if (responses.A1_location_mode === "map") {
+        setTimeout(() => initTehranMap(), 60);
+      }
+    }
+
+    /*************************************************************************
+     * 7. VALIDATION & CONDITIONAL BRANCHING LOGIC
+     *************************************************************************/
+    function validateCurrentStep() {
+      if (currentStep === 1) {
+        if (!responses.P1_consent || !responses.P2_tehran_resident || !responses.P3_age_18plus || !responses.P4_residence_duration) {
+          showValidationBanner("لطفاً به هر ۴ پرسش پیش از شروع پاسخ دهید.");
+          return false;
+        }
+        return true;
+      }
+
+      if (currentStep === 2) {
+        const hasPin = responses.A1_lat !== "" && responses.A1_lng !== "";
+        const hasFallback = responses.A1_district !== "" && (responses.A1_neighborhood.trim() !== "" || responses.A1_intersection.trim() !== "");
+        if (!hasPin && !hasFallback) {
+          showValidationBanner("لطفاً نزدیک‌ترین تقاطع یا میدان به محل سکونت خود را با کلیک روی نقشه مشخص کنید (یا در صورت عدم امکان کار با نقشه، بخش متنی پایین نقشه را تکمیل نمایید).");
+          return false;
+        }
+        return true;
+      }
+
+      if (currentStep === 3) {
+        if (!responses.A2_street_type) { showValidationBanner("لطفاً نوع معبر محل سکونت خود را انتخاب کنید."); return false; }
+        if (responses.A2_street_type === "سایر" && !responses.A2_other.trim()) { showValidationBanner("لطفاً نوع معبر را در کادر «سایر» بنویسید."); return false; }
+        if (!responses.A3_tenure) { showValidationBanner("لطفاً وضعیت مالکیت محل سکونت را مشخص کنید."); return false; }
+        if (!responses.A4_familiarity) { showValidationBanner("لطفاً میزان آشنایی با محدوده را مشخص کنید."); return false; }
+        if (!responses.A5_walk_freq) { showValidationBanner("لطفاً دفعات پیاده‌روی در محدوده را مشخص کنید."); return false; }
+        if (!responses.A6_travel_mode) { showValidationBanner("لطفاً شیوه غالب جابه‌جایی در محدوده را مشخص کنید."); return false; }
+        if (!responses.A7_presence_hours || responses.A7_presence_hours.length === 0) { showValidationBanner("لطفاً ساعات حضور در فضاهای عمومی محدوده را مشخص کنید."); return false; }
+        if (!responses.A8_physical_change) { showValidationBanner("لطفاً میزان تغییر ظاهر محدوده را مشخص کنید."); return false; }
+        if (responses.B1_overall_satisfaction === "") { showValidationBanner("لطفاً میزان رضایت کلی از زندگی در این محدوده را مشخص کنید."); return false; }
+        return true;
+      }
+
+      if (currentStep === 4) {
+        return validateItemGroup(ITEMS_C_PART1);
+      }
+      if (currentStep === 5) {
+        return validateItemGroup(ITEMS_C_PART2);
+      }
+      if (currentStep === 6) {
+        return validateItemGroup(ITEMS_D_PART1);
+      }
+      if (currentStep === 7) {
+        return validateItemGroup(ITEMS_D_PART2);
+      }
+      if (currentStep === 8) {
+        return validateItemGroup(ITEMS_D_PART3);
+      }
+
+      if (currentStep === 9 || currentStep === 10 || currentStep === 11) {
+        const idx = currentStep - 8;
+        const pfx = `E${idx}`;
+        const persianIdx = toPersianNum(idx);
+        for (let i = 1; i <= 6; i++) {
+          if (responses[`${pfx}_${i}`] === "") {
+            showValidationBanner(`لطفاً همه ۶ ویژگی تصویر ${persianIdx} را ارزیابی کنید.`);
+            return false;
+          }
+        }
+        if (!responses[`${pfx}_7_know`]) {
+          showValidationBanner(`لطفاً مشخص کنید که آیا مکان تصویر ${persianIdx} را می‌شناسید یا خیر.`);
+          return false;
+        }
+        return true;
+      }
+
+      if (currentStep === 12) {
+        if (!responses.G1_age_group || !responses.G2_gender || !responses.G3_education || !responses.G4_urban_field || !responses.G5_household_size || !responses.G6_cars || !responses.G7_ses_ladder) {
+          showValidationBanner("لطفاً به همه پرسش‌های اطلاعات جمعیت‌شناختی پاسخ دهید.");
+          return false;
+        }
+        return true;
+      }
+
+      return true;
+    }
+
+    function validateItemGroup(items) {
+      const missing = items.filter(item => responses[item.key] === "");
+      if (missing.length > 0) {
+        showValidationBanner(`لطفاً به ${toPersianNum(missing.length)} مورد باقی‌مانده در این صفحه پاسخ دهید.`);
+        const firstCard = document.getElementById(`card-${missing[0].key}`);
+        if (firstCard) {
+          firstCard.classList.add("ring-2", "ring-rose-400");
+          firstCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        return false;
+      }
+      return true;
+    }
+
+    function nextStep() {
+      hideValidationBanner();
+      if (!validateCurrentStep()) return;
+
+      // Screening Disqualification Logic on Step 1 (پ-۱ تا پ-۴)
+      if (currentStep === 1) {
+        const isDisqualified =
+          responses.P1_consent === "خیر" ||
+          responses.P2_tehran_resident === "خیر" ||
+          responses.P3_age_18plus === "خیر" ||
+          responses.P4_residence_duration === "کمتر از ۶ ماه";
+
+        if (isDisqualified) {
+          renderDisqualifiedScreen();
+          return;
+        }
+      }
+
+      if (currentStep < TOTAL_STEPS) {
+        currentStep++;
+        renderCurrentStep(true);
+      } else {
+        submitSurvey();
+      }
+    }
+
+    function prevStep() {
+      hideValidationBanner();
+      if (currentStep > 1) {
+        currentStep--;
+        renderCurrentStep(true);
+      }
+    }
+
+    function renderDisqualifiedScreen() {
+      document.getElementById("nav-controls").classList.add("hidden");
+      const viewport = document.getElementById("survey-viewport");
+      viewport.innerHTML = `
+        <div class="bg-white rounded-2xl border border-slate-200 p-7 sm:p-10 text-center shadow-sm space-y-4 my-6">
+          <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto text-2xl">
+            🙏
+          </div>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-800">پایان پرسشنامه — سپاس از وقت شما</h2>
+          <p class="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+            بر اساس شرایط این پژوهش، جامعه آماری شامل <strong>ساکنان بزرگسال (۱۸ سال به بالا) در محدوده ۲۲ منطقه شهر تهران با حداقل ۶ ماه سابقه سکونت در محله فعلی</strong> و موافق با مشارکت در پژوهش است.
+          </p>
+          <div class="pt-4">
+            <button type="button" onclick="renderCurrentStep(true)" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs sm:text-sm font-semibold">
+              بازگشت و ویرایش پاسخ‌های صفحه اول (در صورت انتخاب اشتباه)
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    /*************************************************************************
+     * 8. SUBMISSION TO GOOGLE SHEETS & BACKUP EXPORT
+     *************************************************************************/
+    function buildFinalPayload() {
+      const durationSec = Math.round((Date.now() - surveyStartTime) / 1000);
+      const attentionPassed = String(responses.D17_attention) === "6";
+
+      return {
+        timestamp: new Date().toISOString(),
+        duration_sec: durationSec,
+        attention_check_pass: attentionPassed ? "PASS" : "FAIL",
+        attention_D17_passed: attentionPassed ? "PASS (6)" : `FAIL (${responses.D17_attention})`,
+        ...responses
+      };
+    }
+
+    async function submitSurvey() {
+      const nextBtn = document.getElementById("btn-next");
+      const nextText = document.getElementById("btn-next-text");
+      nextBtn.disabled = true;
+      nextText.textContent = "در حال ثبت پاسخ‌ها...";
+
+      const payload = buildFinalPayload();
+
+      // Save locally in browser storage as safety backup
+      try {
+        const storedList = JSON.parse(localStorage.getItem("tehran_survey_submissions") || "[]");
+        storedList.push(payload);
+        localStorage.setItem("tehran_survey_submissions", JSON.stringify(storedList));
+      } catch (e) {}
+
+      let sentToSheet = false;
+      const targetUrl = (appConfig.googleSheetWebAppUrl && appConfig.googleSheetWebAppUrl.startsWith("http"))
+        ? appConfig.googleSheetWebAppUrl
+        : WEBHOOK_URL;
+
+      if (targetUrl) {
+        try {
+          await fetch(targetUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          });
+          sentToSheet = true;
+        } catch (err) {
+          console.error("Google Sheet send error:", err);
+        }
+      }
+
+      nextBtn.disabled = false;
+      renderThankYouScreen(sentToSheet);
+    }
+
+    function renderThankYouScreen(sentToSheet) {
+      document.getElementById("nav-controls").classList.add("hidden");
+      document.getElementById("progress-bar-fill").style.width = "100%";
+      document.getElementById("step-percent-badge").textContent = "۱۰۰٪";
+
+      const viewport = document.getElementById("survey-viewport");
+      viewport.innerHTML = `
+        <div class="bg-white rounded-2xl border border-emerald-200 p-7 sm:p-10 text-center shadow-sm space-y-5 my-6">
+          <div class="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto text-3xl font-bold">
+            ✓
+          </div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800">پاسخ‌های شما با موفقیت ثبت شد</h2>
+          <p class="text-sm sm:text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
+            از زمانی که برای پاسخ‌گویی به این پرسشنامه اختصاص دادید، صمیمانه سپاسگزاریم. مشارکت شما به درک بهتر نحوه ادراک ساکنان از محیط شهری تهران و بررسی ارتباط آن با ویژگی‌های قابل مشاهده محیط کمک خواهد کرد.
+          </p>
+
+          <div class="inline-block px-4 py-2 rounded-xl text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
+            پاسخ‌های شما با موفقیت در سامانه پژوهش ثبت گردید.
+          </div>
+
+          ${isAdminUnlocked ? `
+          <div class="pt-3 flex flex-wrap items-center justify-center gap-3">
+            <button type="button" onclick="downloadCurrentResponseCSV()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-semibold transition">
+              📥 دانلود نسخه پشتیبان پاسخ (CSV)
+            </button>
+            <button type="button" onclick="resetForNewRespondent()" class="px-5 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-medium transition">
+              شروع مجدد پرسشنامه
+            </button>
+          </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function downloadCurrentResponseCSV() {
+      const payload = buildFinalPayload();
+      const keys = Object.keys(payload);
+      const values = keys.map(k => {
+        let v = payload[k];
+        if (Array.isArray(v)) v = v.join(" | ");
+        const str = String(v ?? "").replace(/"/g, '""');
+        return `"${str}"`;
+      });
+
+      // Add UTF-8 BOM (\uFEFF) so Microsoft Excel opens Persian characters cleanly
+      const csvContent = "\uFEFF" + keys.join(",") + "\n" + values.join(",");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `tehran_perception_survey_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function resetForNewRespondent() {
+      window.location.reload();
+    }
+
+    /*************************************************************************
+     * 9. RESEARCHER MODAL, TEST MODE & IMAGE ZOOM
+     *************************************************************************/
+    function openImageZoom(imgUrl, title) {
+      document.getElementById("zoom-modal-img").src = imgUrl;
+      document.getElementById("zoom-modal-title").textContent = title || "بزرگ‌نمایی تصویر";
+      document.getElementById("image-zoom-modal").classList.remove("hidden");
+    }
+
+    function closeImageZoom() {
+      document.getElementById("image-zoom-modal").classList.add("hidden");
+    }
+
+    function openResearcherModal() {
+      document.getElementById("cfg-sheet-url").value = appConfig.googleSheetWebAppUrl || "";
+      document.getElementById("cfg-researcher-name").value = appConfig.researcherName || "";
+      document.getElementById("cfg-researcher-contact").value = appConfig.researcherContact || "";
+      document.getElementById("cfg-img1").value = appConfig.image1Url || "";
+      document.getElementById("cfg-img2").value = appConfig.image2Url || "";
+      document.getElementById("cfg-img3").value = appConfig.image3Url || "";
+      document.getElementById("cfg-test-mode").checked = !!appConfig.testMode;
+      document.getElementById("researcher-modal").classList.remove("hidden");
+    }
+
+    function closeResearcherModal() {
+      document.getElementById("researcher-modal").classList.add("hidden");
+    }
+
+    function toggleTestMode(enabled) {
+      appConfig.testMode = enabled;
+      updateHeaderProgress();
+    }
+
+    function handleLocalImageUpload(imgIndex, inputEl) {
+      const file = inputEl && inputEl.files && inputEl.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const dataUrl = ev.target.result;
+        document.getElementById(`cfg-img${imgIndex}`).value = dataUrl;
+        appConfig[`image${imgIndex}Url`] = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveResearcherConfig() {
+      appConfig.googleSheetWebAppUrl = document.getElementById("cfg-sheet-url").value.trim() || WEBHOOK_URL;
+      appConfig.researcherName = document.getElementById("cfg-researcher-name").value.trim() || DEFAULT_CONFIG.researcherName;
+      appConfig.researcherContact = document.getElementById("cfg-researcher-contact").value.trim() || DEFAULT_CONFIG.researcherContact;
+      appConfig.image1Url = document.getElementById("cfg-img1").value.trim() || DEFAULT_CONFIG.image1Url;
+      appConfig.image2Url = document.getElementById("cfg-img2").value.trim() || DEFAULT_CONFIG.image2Url;
+      appConfig.image3Url = document.getElementById("cfg-img3").value.trim() || DEFAULT_CONFIG.image3Url;
+      appConfig.testMode = document.getElementById("cfg-test-mode").checked;
+
+      try {
+        localStorage.setItem("tehran_survey_config_v5", JSON.stringify(appConfig));
+      } catch (e) {}
+
+      closeResearcherModal();
+      renderCurrentStep(false);
+    }
+
+    async function sendTestRowToSheet() {
+      const url = document.getElementById("cfg-sheet-url").value.trim();
+      const statusEl = document.getElementById("sheet-test-status");
+      statusEl.classList.remove("hidden");
+
+      if (!url || !url.startsWith("http")) {
+        statusEl.className = "text-xs font-medium text-rose-600 block";
+        statusEl.textContent = "لطفاً ابتدا لینک Web App اسکریپت گوگل شیت را در کادر بالا وارد کنید.";
+        return;
+      }
+
+      statusEl.className = "text-xs font-medium text-amber-700 block";
+      statusEl.textContent = "در حال ارسال ردیف آزمایشی به Google Sheet...";
+
+      try {
+        const testPayload = {
+          ...buildFinalPayload(),
+          P1_consent: "TEST_ROW",
+          A1_intersection: "تست اتصال از پنل پژوهشگر"
+        };
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(testPayload)
+        });
+        statusEl.className = "text-xs font-bold text-emerald-700 block";
+        statusEl.textContent = "✓ درخواست آزمایشی ارسال شد! لطفاً فایل Google Sheet خود را بررسی کنید (ستون‌ها و ردیف اول اضافه شده‌اند).";
+      } catch (err) {
+        statusEl.className = "text-xs font-medium text-rose-600 block";
+        statusEl.textContent = "خطا در ارتباط با لینک واردشده. از صحت آدرس و دسترسی Anyone اطمینان حاصل کنید.";
+      }
+    }
+
+    function copyAppsScriptCode() {
+      const code = document.getElementById("apps-script-code").innerText;
+      const textarea = document.createElement("textarea");
+      textarea.value = code;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+
+      const statusEl = document.getElementById("sheet-test-status");
+      statusEl.className = "text-xs font-bold text-emerald-700 block";
+      statusEl.textContent = "✓ کد Google Apps Script در حافظه کپی شد.";
+      statusEl.classList.remove("hidden");
+    }
+
+    // Quick-fill current step for rapid researcher testing
+    function quickFillCurrentStep() {
+      if (currentStep === 1) {
+        responses.P1_consent = "بله، موافقم و ادامه می‌دهم";
+        responses.P2_tehran_resident = "بله";
+        responses.P3_age_18plus = "بله";
+        responses.P4_residence_duration = "۳ تا ۵ سال";
+      } else if (currentStep === 2) {
+        placePinAndBuffer(35.7244, 51.4055, true);
+      } else if (currentStep === 3) {
+        responses.A2_street_type = "خیابان فرعی";
+        responses.A3_tenure = "مالک";
+        responses.A4_familiarity = "زیاد";
+        responses.A5_walk_freq = "چند بار در هفته";
+        responses.A6_travel_mode = "پیاده";
+        responses.A7_presence_hours = ["صبح", "عصر"];
+        responses.A8_physical_change = "متوسط";
+        responses.B1_overall_satisfaction = 5;
+      } else if (currentStep === 4) {
+        ITEMS_C_PART1.forEach((it, idx) => responses[it.key] = (idx % 5) + 3);
+      } else if (currentStep === 5) {
+        ITEMS_C_PART2.forEach((it, idx) => responses[it.key] = (idx % 5) + 3);
+      } else if (currentStep === 6) {
+        ITEMS_D_PART1.forEach((it, idx) => responses[it.key] = (idx % 5) + 3);
+      } else if (currentStep === 7) {
+        ITEMS_D_PART2.forEach((it, idx) => responses[it.key] = it.key === "D17_attention" ? 6 : (idx % 5) + 3);
+      } else if (currentStep === 8) {
+        ITEMS_D_PART3.forEach((it, idx) => responses[it.key] = (idx % 5) + 3);
+      } else if (currentStep === 9 || currentStep === 10 || currentStep === 11) {
+        const idx = currentStep - 8;
+        for (let i = 1; i <= 6; i++) responses[`E${idx}_${i}`] = 5;
+        responses[`E${idx}_7_know`] = "خیر";
+      } else if (currentStep === 12) {
+        responses.F1_open_comment = "همسایگی و دسترسی مناسب به خدمات روزمره";
+        responses.G1_age_group = "۲۵ تا ۳۴ سال";
+        responses.G2_gender = "زن";
+        responses.G3_education = "کارشناسی ارشد";
+        responses.G4_urban_field = "خیر";
+        responses.G5_household_size = "3";
+        responses.G6_cars = "۱ دستگاه";
+        responses.G7_ses_ladder = "6";
+      }
+      hideValidationBanner();
+      renderCurrentStep(false);
+    }
+
+    // Initialize on load
+    window.onload = function() {
+      checkAdminAccessOnLoad();
+      renderCurrentStep(false);
+    };
+  </script>
+</body>
+</html>
