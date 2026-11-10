@@ -430,13 +430,14 @@
   <!-- APPLICATION LOGIC & COMPLETE QUESTIONNAIRE DATA                       -->
   <!-- ===================================================================== -->
   <script>
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzW5M5b2LzD_LYYSyaiuOYaylxyTNgHtdTuh-zIA4BvMxUzO1o2HGdVm9ZSLRuBEy2YgA/exec";
+    const WEBHOOK_URL = GOOGLE_SHEET_URL;
+
     /*************************************************************************
      * 1. DEFAULT CONFIGURATION (Production Webhook Hardcoded)
      *************************************************************************/
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwUlL0OCpPWNye-GwHJkq8mulyGXvkFkMBNxeHdSKBjN0Q-Oj0z-V7U4Ige-OEoUtb6/exec";
-
     const DEFAULT_CONFIG = {
-      googleSheetWebAppUrl: WEBHOOK_URL,
+      googleSheetWebAppUrl: GOOGLE_SHEET_URL,
       researcherName: "گروه شهرسازی دانشگاه علم و صنعت ایران",
       researcherContact: "elham_ali80@arch.iust.ac.ir",
       // Three uploaded street-level images of Tehran for Section E (Steps 9, 10, 11)
@@ -446,9 +447,14 @@
       testMode: false
     };
 
+    // Clear any stale localStorage webhook configurations so GOOGLE_SHEET_URL is always used
+    try {
+      localStorage.removeItem("tehran_survey_config_v5");
+    } catch (e) {}
+
     let appConfig = { ...DEFAULT_CONFIG };
     try {
-      const savedCfg = localStorage.getItem("tehran_survey_config_v5");
+      const savedCfg = sessionStorage.getItem("tehran_survey_config_session");
       if (savedCfg) {
         const parsed = JSON.parse(savedCfg);
         appConfig = {
@@ -456,7 +462,7 @@
           ...parsed,
           googleSheetWebAppUrl: (parsed.googleSheetWebAppUrl && parsed.googleSheetWebAppUrl.startsWith("http"))
             ? parsed.googleSheetWebAppUrl
-            : WEBHOOK_URL
+            : GOOGLE_SHEET_URL
         };
       }
     } catch (e) {}
@@ -1053,37 +1059,31 @@
           <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
               <span class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-700 bg-brand-50 px-3 py-1 rounded-full border border-brand-200">
-                🏙️ پژوهش علمی ادراک محیطی ساکنان تهران
+                مجری پژوهش: ${appConfig.researcherName} | راه ارتباطی: ${appConfig.researcherContact}
               </span>
               <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
-                ⏱️ زمان تقریبی: ۱۲ تا ۱۵ دقیقه
+                ⏱️ زمان پاسخ‌گویی: حدود ۱۲ تا ۱۵ دقیقه
               </span>
             </div>
 
-            <h2 class="text-lg sm:text-xl font-extrabold text-slate-800">سلام و سپاس از همراهی شما در این پژوهش</h2>
-            <p class="text-sm text-slate-600 leading-relaxed">
+            <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-medium">
               سلام و سپاس از زمانی که برای شرکت در این پژوهش اختصاص می‌دهید. این پژوهش با هدف بررسی <strong>ادراک ساکنان از کیفیت محیطی محله (یا محدوده) سکونت‌شان در شهر تهران</strong> انجام می‌شود. پاسخ‌های شما صرفاً برای اهداف علمی و پژوهشی استفاده خواهند شد.
             </p>
 
-            <!-- Key Assurance Pills -->
+            <!-- 3 Concise Info Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div class="text-xs font-bold text-slate-800 mb-1">🔒 کاملاً ناشناس و محرمانه</div>
-                <p class="text-xs text-slate-600 leading-relaxed">نام، شماره تماس یا نشانی دقیق شما پرسیده نمی‌شود و اطلاعات کاملاً محرمانه و ناشناس تحلیل می‌شوند.</p>
+                <div class="text-xs font-bold text-slate-800 mb-1">🔒 داوطلبانه و کاملاً ناشناس</div>
+                <p class="text-xs text-slate-600 leading-relaxed">شرکت در این پژوهش کاملاً داوطلبانه است. نام، شماره تماس یا نشانی دقیق پرسیده نمی‌شود و نتایج فقط به‌صورت تجمیعی گزارش خواهد شد.</p>
               </div>
               <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div class="text-xs font-bold text-slate-800 mb-1">🚶 بر پایه تجربه روزمره</div>
-                <p class="text-xs text-slate-600 leading-relaxed">لطفاً بر اساس تجربه واقعی و معمول خود از اطراف محل زندگی پاسخ دهید، نه یک اتفاق یا روز خاص.</p>
+                <div class="text-xs font-bold text-slate-800 mb-1">⏱️ زمان پاسخ‌گویی</div>
+                <p class="text-xs text-slate-600 leading-relaxed">حدود ۱۲ تا ۱۵ دقیقه.</p>
               </div>
               <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div class="text-xs font-bold text-slate-800 mb-1">✨ بدون پاسخ درست یا غلط</div>
-                <p class="text-xs text-slate-600 leading-relaxed">شرکت کاملاً داوطلبانه است و صرفاً دیدگاه و برداشت شخصی شما برای ما اهمیت دارد.</p>
+                <div class="text-xs font-bold text-slate-800 mb-1">✨ تجربه واقعی و معمول</div>
+                <p class="text-xs text-slate-600 leading-relaxed">لطفاً پاسخ‌ها را بر اساس تجربه واقعی و معمول خود ارائه کنید. در این پرسشنامه پاسخ درست یا غلط وجود ندارد؛ نظر شخصی شما برای ما اهمیت دارد.</p>
               </div>
-            </div>
-
-            <div class="text-xs text-slate-600 pt-3 border-t border-slate-100 flex flex-wrap justify-between gap-2">
-              <span><strong>مجری پژوهش:</strong> ${appConfig.researcherName}</span>
-              <span><strong>راه ارتباطی:</strong> <a href="mailto:${appConfig.researcherContact}" dir="ltr" class="text-brand-700 font-semibold hover:underline">${appConfig.researcherContact}</a></span>
             </div>
           </div>
 
@@ -1129,6 +1129,115 @@
                 "بیش از ۱۰ سال"
               ], "grid-cols-1 sm:grid-cols-3")}
             </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------------- STEP 2: TEHRAN INTERACTIVE MAP (الف-۱) ---------------- */
+    function buildStep2HTML() {
+      const hasCoords = responses.A1_lat !== "" && responses.A1_lng !== "";
+      const isTextFallback = responses.A1_location_mode === "text";
+
+      return `
+        <div class="space-y-5">
+          <!-- Scope Instruction Banner -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 text-slate-700 shadow-sm">
+            <p class="text-xs sm:text-sm leading-relaxed">
+              در پاسخ به همه پرسش‌های این پرسشنامه، لطفاً <strong>محدوده اطراف محل سکونت خود</strong> را در نظر بگیرید؛ یعنی فضایی که در <strong>شعاع حدود ۵ دقیقه پیاده‌روی (تقریباً ۵۰۰ متر)</strong> از محل زندگی شما قرار دارد.
+            </p>
+          </div>
+
+          <!-- Prominent Main Question Prompt -->
+          <div class="text-lg md:text-xl font-extrabold text-slate-900 bg-teal-50/80 border-r-4 border-teal-600 p-4 rounded-xl mb-5">
+            <div>لطفاً نزدیک‌ترین تقاطع یا میدان به محل سکونت خود را روی نقشه مشخص کنید (نیازی به ثبت نشانی دقیق، شماره پلاک یا واحد مسکونی نیست).</div>
+            <p class="text-xs sm:text-sm font-normal text-slate-600 mt-2">
+              پس از ثبت نقطه، دایره‌ای به شعاع حدود ۵۰۰ متر روی نقشه نمایش داده می‌شود. لطفاً در پاسخ به همه پرسش‌ها به همین محدوده فکر کنید.
+            </p>
+          </div>
+
+          <!-- Map Search & Quick District Filter Card -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
+
+            <!-- Search Controls Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+              <!-- District Jump Dropdown -->
+              <div class="sm:col-span-5">
+                <label class="block text-xs font-bold text-slate-600 mb-1">پرش سریع به منطقه شهرداری:</label>
+                <select id="map-district-select" onchange="jumpToDistrict(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-brand-600">
+                  <option value="">انتخاب منطقه (۱ تا ۲۲)...</option>
+                  ${TEHRAN_DISTRICTS.map(d => `<option value="${d.id}" ${String(responses.A1_district) === String(d.id) ? 'selected' : ''}>${d.name}</option>`).join("")}
+                </select>
+              </div>
+
+              <!-- Persian POI / Intersection Search Box -->
+              <div class="sm:col-span-7 relative">
+                <label class="block text-xs font-bold text-slate-600 mb-1">جستجوی نام محله، میدان یا تقاطع در تهران:</label>
+                <div class="flex gap-1.5">
+                  <input type="text" id="map-search-input"
+                    oninput="handleLocalPoiSearch(this.value)"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault(); triggerOnlinePoiSearch();}"
+                    placeholder="مثلاً: میدان ونک، صادقیه، هفت‌حوض، یوسف‌آباد..."
+                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-brand-600" />
+                  <button type="button" onclick="triggerOnlinePoiSearch()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold shrink-0">
+                    جستجو
+                  </button>
+                </div>
+
+                <!-- Instant Autocomplete Dropdown -->
+                <div id="poi-search-results" class="hidden absolute left-0 right-0 top-full mt-1 bg-white rounded-xl border border-slate-200 shadow-xl max-h-56 overflow-y-auto z-30 divide-y divide-slate-100"></div>
+              </div>
+            </div>
+
+            <!-- Interactive Map Container -->
+            <div class="relative rounded-2xl overflow-hidden border border-slate-300 shadow-inner">
+              <div id="tehran-map"></div>
+            </div>
+
+            <!-- Status Pill Below Map -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <div id="map-status-badge" class="text-xs sm:text-sm font-medium ${hasCoords ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-amber-800 bg-amber-50 border-amber-200'} px-3.5 py-2 rounded-xl border flex items-center gap-2">
+                ${hasCoords
+                  ? `<span>✅ محدوده ۵۰۰ متری روی نقشه ثبت شد (عرض جغرافیایی: <b dir="ltr">${Number(responses.A1_lat).toFixed(4)}</b>، طول جغرافیایی: <b dir="ltr">${Number(responses.A1_lng).toFixed(4)}</b>)</span>`
+                  : `<span>👆 لطفاً روی نزدیک‌ترین میدان یا تقاطع به محل سکونت خود روی نقشه کلیک کنید.</span>`
+                }
+              </div>
+
+              <button type="button" onclick="toggleMapFallback()" class="text-xs font-semibold text-slate-600 hover:text-brand-700 underline underline-offset-4 py-1">
+                ${isTextFallback ? "بازگشت به انتخاب از روی نقشه" : "اگر امکان کار با نقشه را ندارید، اینجا کلیک کنید"}
+              </button>
+            </div>
+
+            <!-- Fallback Text Input Section (For users who cannot use the map) -->
+            <div id="map-fallback-box" class="${isTextFallback ? 'block' : 'hidden'} mt-3 pt-4 border-t border-slate-200 bg-slate-50 p-4 rounded-xl space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs sm:text-sm font-bold text-slate-800">ثبت متنی محدوده (در صورت عدم امکان کار با نقشه)</h4>
+                <span class="text-[11px] text-slate-500">حداقل منطقه و نام محله/تقاطع را وارد کنید</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">منطقه شهرداری (۱ تا ۲۲)</label>
+                  <select onchange="responses.A1_district = this.value; responses.A1_location_mode = 'text';" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm">
+                    <option value="">انتخاب منطقه...</option>
+                    ${Array.from({length: 22}, (_, i) => i + 1).map(n => `
+                      <option value="${n}" ${String(responses.A1_district) === String(n) ? 'selected' : ''}>منطقه ${toPersianNum(n)}</option>
+                    `).join("")}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">نام محله</label>
+                  <input type="text" value="${responses.A1_neighborhood}" oninput="responses.A1_neighborhood = this.value; responses.A1_location_mode = 'text';" placeholder="مثلاً: یوسف‌آباد" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">نزدیک‌ترین تقاطع یا میدان</label>
+                  <input type="text" value="${responses.A1_intersection}" oninput="responses.A1_intersection = this.value; responses.A1_location_mode = 'text';" placeholder="مثلاً: میدان سلماس" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm" />
+                </div>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-500 pt-2 border-t border-slate-100">
+              موقعیت ثبت‌شده صرفاً برای تعیین تقریبی محدوده اطراف محل سکونت و ارتباط آن با داده‌های محیطی استفاده خواهد شد.
+            </p>
           </div>
         </div>
       `;
@@ -1378,10 +1487,8 @@
             </p>
           </div>
 
-          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
-            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
-              صرفاً از نظر ظاهر، این محدوده تا چه اندازه … به نظر می‌رسد؟
-            </h2>
+          <div class="text-lg md:text-xl font-extrabold text-slate-900 bg-teal-50/80 border-r-4 border-teal-600 p-4 rounded-xl mb-5">
+            صرفاً از نظر ظاهر، این محدوده تا چه اندازه … به نظر می‌رسد؟
           </div>
 
           <div class="space-y-3.5">
@@ -1395,10 +1502,14 @@
     function buildStep5HTML() {
       return `
         <div class="space-y-4">
-          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
-            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
-              اکنون، باز هم فقط بر اساس ظاهر محدوده، میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید.
-            </h2>
+          <div class="bg-amber-50/90 border border-amber-200 rounded-2xl p-3.5 sm:p-4 text-amber-950">
+            <p class="text-xs sm:text-sm text-amber-900 leading-relaxed">
+              در این بخش نیز همچنان فقط ظاهر روزانه محدوده را در نظر بگیرید.
+            </p>
+          </div>
+
+          <div class="text-lg md:text-xl font-extrabold text-slate-900 bg-teal-50/80 border-r-4 border-teal-600 p-4 rounded-xl mb-5">
+            اکنون، باز هم فقط بر اساس ظاهر محدوده، میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید.
           </div>
 
           <div class="space-y-3.5">
@@ -1412,10 +1523,14 @@
     function buildStep6HTML() {
       return `
         <div class="space-y-4">
-          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
-            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
-              بر اساس تجربه روزمره و شناختی که از زندگی در این محدوده دارید (نه فقط ظاهر آن)، میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید.
-            </h2>
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 text-slate-700 shadow-sm">
+            <p class="text-xs sm:text-sm leading-relaxed">
+              در این بخش، لطفاً بر اساس تجربه روزمره و شناختی که از زندگی در این محدوده دارید (نه فقط ظاهر آن) پاسخ دهید.
+            </p>
+          </div>
+
+          <div class="text-lg md:text-xl font-extrabold text-slate-900 bg-teal-50/80 border-r-4 border-teal-600 p-4 rounded-xl mb-5">
+            میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید:
           </div>
 
           <div class="space-y-3.5">
@@ -1429,10 +1544,14 @@
     function buildStep7HTML() {
       return `
         <div class="space-y-4">
-          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
-            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
-              بر اساس تجربه روزمره و شناختی که از زندگی در این محدوده دارید (نه فقط ظاهر آن)، میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید.
-            </h2>
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 text-slate-700 shadow-sm">
+            <p class="text-xs sm:text-sm leading-relaxed">
+              در این بخش، لطفاً بر اساس تجربه روزمره و شناختی که از زندگی در این محدوده دارید (نه فقط ظاهر آن) پاسخ دهید.
+            </p>
+          </div>
+
+          <div class="text-lg md:text-xl font-extrabold text-slate-900 bg-teal-50/80 border-r-4 border-teal-600 p-4 rounded-xl mb-5">
+            میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید:
           </div>
 
           <div class="space-y-3.5">
@@ -1446,10 +1565,14 @@
     function buildStep8HTML() {
       return `
         <div class="space-y-4">
-          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
-            <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
-              بر اساس تجربه روزمره و شناختی که از زندگی در این محدوده دارید (نه فقط ظاهر آن)، میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید.
-            </h2>
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 text-slate-700 shadow-sm">
+            <p class="text-xs sm:text-sm leading-relaxed">
+              در این بخش، لطفاً بر اساس تجربه روزمره و شناختی که از زندگی در این محدوده دارید (نه فقط ظاهر آن) پاسخ دهید.
+            </p>
+          </div>
+
+          <div class="text-lg md:text-xl font-extrabold text-slate-900 bg-teal-50/80 border-r-4 border-teal-600 p-4 rounded-xl mb-5">
+            میزان موافقت یا مخالفت خود را با هر جمله مشخص کنید:
           </div>
 
           <div class="space-y-3.5">
@@ -1484,7 +1607,7 @@
               <span class="text-xs bg-white/15 px-2.5 py-1 rounded-full">تصاویر خیابان‌های تهران</span>
             </div>
             <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
-              این تصاویر به محدوده زندگی شما مربوط نیستند و برای همه شرکت‌کنندگان یکسان‌اند. لطفاً تصویر زیر را <strong>فقط بر اساس آنچه در آن می‌بینید</strong> ارزیابی کنید.
+              در این بخش سه تصویر از خیابان‌های تهران نمایش داده می‌شود. این تصاویر به محدوده شما مربوط نیستند و برای همه شرکت‌کنندگان یکسان‌اند. لطفاً هر تصویر را <strong>فقط بر اساس آنچه در آن می‌بینید</strong> ارزیابی کنید.
             </p>
           </div>
 
@@ -1504,9 +1627,9 @@
                 <span>🔍 بزرگ‌نمایی تصویر</span>
               </button>
             </div>
-            <h2 class="text-base sm:text-lg font-extrabold text-slate-900 text-center mt-3 mb-1">
+            <div class="text-lg md:text-xl font-extrabold text-slate-900 bg-teal-50/80 border-r-4 border-teal-600 p-3.5 rounded-xl mt-3">
               این مکان تا چه اندازه … به نظر می‌رسد؟
-            </h2>
+            </div>
           </div>
 
           <!-- 6 Rating Scales for Image -->
@@ -2022,7 +2145,7 @@
       let sentToSheet = false;
       const targetUrl = (appConfig.googleSheetWebAppUrl && appConfig.googleSheetWebAppUrl.startsWith("http"))
         ? appConfig.googleSheetWebAppUrl
-        : WEBHOOK_URL;
+        : GOOGLE_SHEET_URL;
 
       if (targetUrl) {
         try {
@@ -2149,7 +2272,7 @@
     }
 
     function saveResearcherConfig() {
-      appConfig.googleSheetWebAppUrl = document.getElementById("cfg-sheet-url").value.trim() || WEBHOOK_URL;
+      appConfig.googleSheetWebAppUrl = document.getElementById("cfg-sheet-url").value.trim() || GOOGLE_SHEET_URL;
       appConfig.researcherName = document.getElementById("cfg-researcher-name").value.trim() || DEFAULT_CONFIG.researcherName;
       appConfig.researcherContact = document.getElementById("cfg-researcher-contact").value.trim() || DEFAULT_CONFIG.researcherContact;
       appConfig.image1Url = document.getElementById("cfg-img1").value.trim() || DEFAULT_CONFIG.image1Url;
@@ -2158,7 +2281,7 @@
       appConfig.testMode = document.getElementById("cfg-test-mode").checked;
 
       try {
-        localStorage.setItem("tehran_survey_config_v5", JSON.stringify(appConfig));
+        sessionStorage.setItem("tehran_survey_config_session", JSON.stringify(appConfig));
       } catch (e) {}
 
       closeResearcherModal();
@@ -2166,7 +2289,7 @@
     }
 
     async function sendTestRowToSheet() {
-      const url = document.getElementById("cfg-sheet-url").value.trim();
+      const url = document.getElementById("cfg-sheet-url").value.trim() || GOOGLE_SHEET_URL;
       const statusEl = document.getElementById("sheet-test-status");
       statusEl.classList.remove("hidden");
 
