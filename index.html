@@ -3,7 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>پرسشنامه ادراک محیطی شهر تهران</title>
+  <title>بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران | دانشگاه علم و صنعت ایران</title>
+  <meta name="description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="دانشکده معماری و شهرسازی - دانشگاه علم و صنعت ایران" />
+  <meta property="og:title" content="بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران" />
+  <meta property="og:description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران" />
+  <meta name="twitter:description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -293,7 +301,7 @@
           <div class="flex flex-col sm:flex-row gap-2">
             <input type="url" id="cfg-sheet-url" dir="ltr" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="flex-grow px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-mono focus:outline-none focus:border-brand-600" />
             <button type="button" onclick="sendTestRowToSheet()" class="px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs font-semibold shrink-0 transition">
-              ارسال ردیف آزمایشی به شیت
+              🧪 ارسال یک سطر تست به Google Sheet
             </button>
           </div>
           <p id="sheet-test-status" class="text-xs font-medium hidden"></p>
@@ -1054,7 +1062,7 @@
 
             <h2 class="text-lg sm:text-xl font-extrabold text-slate-800">سلام و سپاس از همراهی شما در این پژوهش</h2>
             <p class="text-sm text-slate-600 leading-relaxed">
-              این پژوهش با هدف بررسی <strong>ادراک ساکنان از کیفیت محیطی محدوده اطراف محل سکونت آن‌ها در شهر تهران</strong> انجام می‌شود و نتایج آن صرفاً برای اهداف علمی و پژوهشی استفاده خواهد شد.
+              سلام و سپاس از زمانی که برای شرکت در این پژوهش اختصاص می‌دهید. این پژوهش با هدف بررسی <strong>ادراک ساکنان از کیفیت محیطی محله (یا محدوده) سکونت‌شان در شهر تهران</strong> انجام می‌شود. پاسخ‌های شما صرفاً برای اهداف علمی و پژوهشی استفاده خواهند شد.
             </p>
 
             <!-- Key Assurance Pills -->
@@ -1290,7 +1298,7 @@
           <!-- A6: Dominant Mode -->
           <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
             <label class="block text-sm sm:text-base font-bold text-slate-800">
-              معمولاً خیابان‌های همین محدوده را بیشتر به چه شکلی طی می‌کنید؟ <span class="text-xs font-normal text-slate-500">(فقط یک گزینه)</span>
+              معمولاً خیابان‌های این محدوده را بیشتر به چه شکلی طی می‌کنید؟ <span class="text-xs font-normal text-slate-500">(فقط یک گزینه)</span>
             </label>
             ${renderRadioPills("A6_travel_mode", ["پیاده", "دوچرخه", "موتورسیکلت", "خودروی شخصی", "تاکسی یا تاکسی اینترنتی", "اتوبوس یا مترو"], "grid-cols-2 sm:grid-cols-3")}
           </div>
@@ -1528,7 +1536,7 @@
               <span class="text-xs text-slate-400">پاسخ به این سوال اختیاری است</span>
             </div>
             <label class="block text-base sm:text-lg font-extrabold text-slate-900 leading-relaxed">
-              به نظر شما، مهم‌ترین ویژگی این محدوده که در ظاهر آن دیده نمی‌شود اما در زندگی روزمره در آن اهمیت دارد، چیست؟
+              به نظر شما، مهم‌ترین ویژگی محدوده محل سکونت شما که در ظاهر آن دیده نمی‌شود اما در زندگی روزمره در آن اهمیت دارد، چیست؟
             </label>
             <textarea rows="3"
               oninput="responses.F1_open_comment = this.value"
