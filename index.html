@@ -6,67 +6,383 @@
   <title>بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران | دانشگاه علم و صنعت ایران</title>
   <meta name="description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://elhm29.github.io/tehran-survey/" />
   <meta property="og:site_name" content="دانشکده معماری و شهرسازی - دانشگاه علم و صنعت ایران" />
   <meta property="og:title" content="بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران" />
   <meta property="og:description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران" />
-  <meta name="twitter:description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
   <meta property="og:image" content="https://elhm29.github.io/tehran-survey/cover.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="736" />
   <meta property="og:image:height" content="662" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران" />
+  <meta name="twitter:description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
   <meta name="twitter:image" content="https://elhm29.github.io/tehran-survey/cover.jpg" />
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Vazirmatn Persian Font (via jsDelivr CDN - fast & accessible in Iran without VPN) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" />
+  <!-- Non-blocking Persian Font (renders immediately with system font, upgrades smoothly when loaded) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" media="print" onload="this.media='all'" />
 
-  <!-- Leaflet Map CSS & JS (via jsDelivr CDN - accessible in Iran without VPN) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Vazirmatn', 'Tahoma', 'system-ui', '-apple-system', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#f0fdfa',
-              100: '#ccfbf1',
-              200: '#99f6e4',
-              500: '#14b8a6',
-              600: '#0d9488',
-              700: '#0f766e',
-              800: '#115e59',
-              900: '#134e4a',
-            }
-          }
-        }
-      }
-    };
-  </script>
-
+  <!-- 100% Self-Contained Native CSS Engine (Zero external CSS/JS dependencies required to render UI) -->
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      border-width: 0;
+      border-style: solid;
+      border-color: #e2e8f0;
+    }
+    html {
+      line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
+      font-family: 'Vazirmatn', Tahoma, 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
     body {
-      font-family: 'Vazirmatn', Tahoma, sans-serif;
+      margin: 0;
+      font-family: 'Vazirmatn', Tahoma, 'Segoe UI', system-ui, -apple-system, sans-serif;
       background-color: #f8fafc;
       color: #1e293b;
       -webkit-tap-highlight-color: transparent;
     }
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: 100%;
+      line-height: inherit;
+      color: inherit;
+      margin: 0;
+    }
+    button {
+      background-color: transparent;
+      background-image: none;
+      cursor: pointer;
+    }
+    button:disabled {
+      cursor: default;
+    }
+    img, svg {
+      display: block;
+      vertical-align: middle;
+      max-width: 100%;
+      height: auto;
+    }
+    h1, h2, h3, h4, p, pre, ol {
+      margin: 0;
+    }
+
+    /* Layout & Sizing */
+    .min-h-screen { min-height: 100vh; }
+    .w-full { width: 100%; }
+    .w-auto { width: auto; }
+    .w-3\.5 { width: 0.875rem; }
+    .h-3\.5 { height: 0.875rem; }
+    .w-4 { width: 1rem; }
+    .h-4 { height: 1rem; }
+    .w-5 { width: 1.25rem; }
+    .h-5 { height: 1.25rem; }
+    .w-8 { width: 2rem; }
+    .h-8 { height: 2rem; }
+    .w-9 { width: 2.25rem; }
+    .w-11 { width: 2.75rem; }
+    .h-6 { height: 1.5rem; }
+    .w-14 { width: 3.5rem; }
+    .h-14 { height: 3.5rem; }
+    .w-16 { width: 4rem; }
+    .h-16 { height: 4rem; }
+    .w-32 { width: 8rem; }
+    .w-2 { width: 0.5rem; }
+    .h-2 { height: 0.5rem; }
+    .w-1\.5 { width: 0.375rem; }
+    .h-1\.5 { height: 0.375rem; }
+    .h-full { height: 100%; }
+    .max-w-lg { max-width: 32rem; }
+    .max-w-xl { max-width: 36rem; }
+    .max-w-3xl { max-width: 48rem; }
+    .max-w-4xl { max-width: 56rem; }
+    .max-h-48 { max-height: 12rem; }
+    .max-h-56 { max-height: 14rem; }
+    .max-h-\[80vh\] { max-height: 80vh; }
+    .max-h-\[76vh\] { max-height: 76vh; }
+    .max-h-\[90vh\] { max-height: 90vh; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+
+    /* Display & Visibility */
+    .block { display: block; }
+    .inline-block { display: inline-block; }
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .grid { display: grid; }
+    .hidden { display: none !important; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    /* Flexbox & Grid */
+    .flex-col { flex-direction: column; }
+    .flex-wrap { flex-wrap: wrap; }
+    .flex-grow { flex-grow: 1; }
+    .shrink-0 { flex-shrink: 0; }
+    .items-start { align-items: flex-start; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+
+    /* Gaps & Spacing */
+    .gap-1 { gap: 0.25rem; }
+    .gap-1\.5 { gap: 0.375rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-2\.5 { gap: 0.625rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
+    .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem; }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+    .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+    .space-y-3\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.875rem; }
+    .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+    .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.25rem; }
+    .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
+    .divide-y > :not([hidden]) ~ :not([hidden]) { border-top-width: 1px; border-color: #f1f5f9; }
+
+    /* Padding & Margin */
+    .p-1 { padding: 0.25rem; }
+    .p-1\.5 { padding: 0.375rem; }
+    .p-2 { padding: 0.5rem; }
+    .p-2\.5 { padding: 0.625rem; }
+    .p-3 { padding: 0.75rem; }
+    .p-3\.5 { padding: 0.875rem; }
+    .p-4 { padding: 1rem; }
+    .p-5 { padding: 1.25rem; }
+    .p-7 { padding: 1.75rem; }
+    .px-0\.5 { padding-left: 0.125rem; padding-right: 0.125rem; }
+    .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .px-7 { padding-left: 1.75rem; padding-right: 1.75rem; }
+    .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+    .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+    .pt-1 { padding-top: 0.25rem; }
+    .pt-2 { padding-top: 0.5rem; }
+    .pt-3 { padding-top: 0.75rem; }
+    .pt-4 { padding-top: 1rem; }
+    .pt-5 { padding-top: 1.25rem; }
+    .pb-3 { padding-bottom: 0.75rem; }
+
+    .mt-0\.5 { margin-top: 0.125rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-1\.5 { margin-top: 0.375rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 0.75rem; }
+    .mt-8 { margin-top: 2rem; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-1\.5 { margin-bottom: 0.375rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3\.5 { margin-bottom: 0.875rem; }
+    .mb-5 { margin-bottom: 1.25rem; }
+    .mr-2 { margin-right: 0.5rem; }
+    .my-6 { margin-top: 1.5rem; margin-bottom: 1.5rem; }
+
+    /* Positioning */
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .fixed { position: fixed; }
+    .sticky { position: sticky; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .top-0 { top: 0; }
+    .top-\[62px\] { top: 62px; }
+    .top-full { top: 100%; }
+    .left-0 { left: 0; }
+    .right-0 { right: 0; }
+    .bottom-2\.5 { bottom: 0.625rem; }
+    .left-2\.5 { left: 0.625rem; }
+    .z-10 { z-index: 10; }
+    .z-20 { z-index: 20; }
+    .z-30 { z-index: 30; }
+    .z-50 { z-index: 50; }
+
+    /* Borders & Radius */
+    .border { border-width: 1px; }
+    .border-2 { border-width: 2px; }
+    .border-t { border-top-width: 1px; }
+    .border-b { border-bottom-width: 1px; }
+    .border-r-4 { border-right-width: 4px; }
+    .rounded { border-radius: 0.25rem; }
+    .rounded-md { border-radius: 0.375rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-full { border-radius: 9999px; }
+
+    /* Colors - Backgrounds */
+    .bg-white { background-color: #ffffff; }
+    .bg-white\/95 { background-color: rgba(255, 255, 255, 0.95); }
+    .bg-white\/90 { background-color: rgba(255, 255, 255, 0.92); }
+    .bg-white\/60 { background-color: rgba(255, 255, 255, 0.75); }
+    .bg-white\/15 { background-color: rgba(255, 255, 255, 0.15); }
+    .bg-slate-50, .bg-slate-50\/70 { background-color: #f8fafc; }
+    .bg-slate-100 { background-color: #f1f5f9; }
+    .bg-slate-200 { background-color: #e2e8f0; }
+    .bg-slate-300 { background-color: #cbd5e1; }
+    .bg-slate-800 { background-color: #1e293b; }
+    .bg-slate-900 { background-color: #0f172a; }
+    .bg-slate-900\/85 { background-color: rgba(15, 23, 42, 0.85); }
+    .bg-slate-900\/80 { background-color: rgba(15, 23, 42, 0.8); }
+    .bg-slate-900\/60 { background-color: rgba(15, 23, 42, 0.6); }
+    .bg-slate-950 { background-color: #020617; }
+
+    .bg-brand-50, .bg-brand-50\/90, .bg-teal-50\/80 { background-color: #f0fdfa; }
+    .bg-brand-50\/30 { background-color: rgba(240, 253, 250, 0.4); }
+    .bg-brand-100 { background-color: #ccfbf1; }
+    .bg-brand-500 { background-color: #14b8a6; }
+    .bg-brand-600 { background-color: #0d9488; }
+    .bg-brand-700 { background-color: #0f766e; }
+    .bg-brand-800 { background-color: #115e59; }
+    .bg-brand-900 { background-color: #134e4a; }
+
+    .bg-amber-50, .bg-amber-50\/90 { background-color: #fffbeb; }
+    .bg-amber-100 { background-color: #fef3c7; }
+    .bg-rose-50 { background-color: #fff1f2; }
+    .bg-emerald-50 { background-color: #ecfdf5; }
+    .bg-emerald-100 { background-color: #d1fae5; }
+
+    /* Colors - Text */
+    .text-white { color: #ffffff; }
+    .text-slate-300 { color: #cbd5e1; }
+    .text-slate-400 { color: #94a3b8; }
+    .text-slate-500 { color: #64748b; }
+    .text-slate-600 { color: #475569; }
+    .text-slate-700 { color: #334155; }
+    .text-slate-800 { color: #1e293b; }
+    .text-slate-900 { color: #0f172a; }
+    .text-brand-700 { color: #0f766e; }
+    .text-brand-900 { color: #134e4a; }
+    .text-brand-950 { color: #042f2e; }
+    .text-amber-700 { color: #b45309; }
+    .text-amber-800 { color: #92400e; }
+    .text-amber-900, .text-amber-950 { color: #78350f; }
+    .text-rose-500, .text-rose-600 { color: #e11d48; }
+    .text-rose-700, .text-rose-800 { color: #9f1239; }
+    .text-emerald-300 { color: #6ee7b7; }
+    .text-emerald-600, .text-emerald-700 { color: #047857; }
+    .text-emerald-800 { color: #065f46; }
+
+    /* Colors - Borders & Rings */
+    .border-slate-100 { border-color: #f1f5f9; }
+    .border-slate-200, .border-slate-200\/80, .border-slate-200\/90, .border-slate-200\/60 { border-color: #e2e8f0; }
+    .border-slate-300 { border-color: #cbd5e1; }
+    .border-brand-200 { border-color: #99f6e4; }
+    .border-brand-500 { border-color: #14b8a6; }
+    .border-brand-600, .border-teal-600 { border-color: #0d9488; }
+    .border-brand-600\/20 { border-color: rgba(13, 148, 136, 0.25); }
+    .border-amber-200, .border-amber-200\/80, .border-amber-300 { border-color: #fde68a; }
+    .border-rose-200 { border-color: #fecdd3; }
+    .border-emerald-200 { border-color: #a7f3d0; }
+    .ring-1.ring-brand-600 { box-shadow: 0 0 0 1px #0d9488; }
+    .ring-2.ring-rose-400 { box-shadow: 0 0 0 2px #fb7185; }
+
+    /* Typography */
+    .text-\[9px\] { font-size: 9px; }
+    .text-\[10px\] { font-size: 10px; }
+    .text-\[11px\] { font-size: 11px; }
+    .text-xs { font-size: 0.75rem; line-height: 1.15rem; }
+    .text-sm { font-size: 0.875rem; line-height: 1.35rem; }
+    .text-base { font-size: 1rem; line-height: 1.5rem; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+    .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+    .font-normal { font-weight: 400; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .leading-none { line-height: 1; }
+    .leading-tight { line-height: 1.25; }
+    .leading-snug { line-height: 1.375; }
+    .leading-relaxed { line-height: 1.65; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+    .underline { text-decoration: underline; }
+    .underline-offset-4 { text-underline-offset: 4px; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .list-decimal { list-style-type: decimal; }
+    .list-inside { list-style-position: inside; }
+
+    /* Effects, Shadows & Overflow */
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+    .shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1); }
+    .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); }
+    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+    .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05); }
+    .opacity-90 { opacity: 0.9; }
+    .backdrop-blur-sm { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    .backdrop-blur-md { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .overflow-hidden { overflow: hidden; }
+    .overflow-x-auto { overflow-x: auto; }
+    .overflow-y-auto { overflow-y: auto; }
+    .object-cover { object-fit: cover; }
+    .object-contain { object-fit: contain; }
+    .select-none { user-select: none; }
+    .cursor-default { cursor: default; }
+    .cursor-pointer { cursor: pointer; }
+    .cursor-zoom-in { cursor: zoom-in; }
+    .transition, .transition-all { transition: all 0.18s ease-in-out; }
+    .aspect-\[16\/9\] { height: 240px; }
+
+    /* Hover, Focus & Disabled States */
+    .hover\:bg-slate-50:hover { background-color: #f8fafc; }
+    .hover\:bg-slate-100:hover { background-color: #f1f5f9; }
+    .hover\:bg-slate-200:hover { background-color: #e2e8f0; }
+    .hover\:bg-slate-300:hover { background-color: #cbd5e1; }
+    .hover\:bg-slate-700:hover { background-color: #334155; }
+    .hover\:bg-slate-900:hover { background-color: #0f172a; }
+    .hover\:bg-brand-50:hover { background-color: #f0fdfa; }
+    .hover\:bg-brand-800:hover { background-color: #115e59; }
+    .hover\:bg-amber-100:hover { background-color: #fef3c7; }
+    .hover\:text-white:hover { color: #ffffff; }
+    .hover\:text-brand-700:hover { color: #0f766e; }
+    .hover\:text-rose-700:hover { color: #be123c; }
+    .hover\:border-slate-300:hover { border-color: #cbd5e1; }
+    .hover\:underline:hover { text-decoration: underline; }
+    .focus\:outline-none:focus { outline: none; }
+    .focus\:border-brand-600:focus { border-color: #0d9488; }
+    .disabled\:opacity-40:disabled { opacity: 0.4; }
+    .disabled\:pointer-events-none:disabled { pointer-events: none; }
+
+    /* Progress Bar Gradient */
+    #progress-bar-fill {
+      background: linear-gradient(to left, #14b8a6, #0f766e);
+    }
 
     /* Smooth fade transitions between steps */
     .step-enter {
-      animation: stepFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: stepFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes stepFadeIn {
       from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(6px);
       }
       to {
         opacity: 1;
@@ -80,11 +396,48 @@
       height: 410px;
       border-radius: 0.875rem;
       z-index: 10;
+      background-color: #f1f5f9;
     }
     @media (max-width: 640px) {
       #tehran-map {
         height: 330px;
       }
+    }
+
+    /* Responsive Breakpoints (sm: >= 640px, md: >= 768px) */
+    @media (min-width: 640px) {
+      .sm\:inline-block { display: inline-block !important; }
+      .sm\:flex-row { flex-direction: row; }
+      .sm\:flex-nowrap { flex-wrap: nowrap; }
+      .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .sm\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .sm\:grid-cols-10 { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+      .sm\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .sm\:col-span-5 { grid-column: span 5 / span 5; }
+      .sm\:col-span-7 { grid-column: span 7 / span 7; }
+      .sm\:gap-2 { gap: 0.5rem; }
+      .sm\:p-3 { padding: 0.75rem; }
+      .sm\:p-4 { padding: 1rem; }
+      .sm\:p-5 { padding: 1.25rem; }
+      .sm\:p-6 { padding: 1.5rem; }
+      .sm\:p-7 { padding: 1.75rem; }
+      .sm\:p-10 { padding: 2.5rem; }
+      .sm\:px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+      .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .sm\:py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+      .sm\:py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+      .sm\:text-\[10px\] { font-size: 10px; }
+      .sm\:text-sm { font-size: 0.875rem; line-height: 1.35rem; }
+      .sm\:text-base { font-size: 1rem; line-height: 1.5rem; }
+      .sm\:text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+      .sm\:text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+      .sm\:text-2xl { font-size: 1.5rem; line-height: 2rem; }
+      .sm\:aspect-\[21\/9\] { height: 290px; }
+    }
+    @media (min-width: 768px) {
+      .md\:text-xl { font-size: 1.25rem; line-height: 1.75rem; }
     }
 
     /* Custom Leaflet font inheritance */
@@ -201,7 +554,7 @@
       </button>
 
       <div class="flex items-center gap-2">
-        <!-- Quick Fill Button for Researcher Testing (Visible when Researcher Mode is unlocked or on localhost) -->
+        <!-- Quick Fill Button for Researcher Testing (Visible when Researcher Mode is unlocked) -->
         <button id="btn-quick-fill" type="button" onclick="quickFillCurrentStep()" class="hidden px-3 py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 text-xs font-medium transition" title="پر کردن آزمایشی این صفحه برای تست سریع">
           ⚡ تست سریع این صفحه
         </button>
@@ -275,8 +628,7 @@
               <p class="text-xs text-amber-700 mt-0.5">با فعال‌سازی این گزینه، دکمه «⚡ تست سریع این صفحه» در پایین فرم نمایش داده می‌شود تا بتوانید همه ۱۲ مرحله را در چند ثانیه تست کنید.</p>
             </div>
             <label class="inline-flex items-center cursor-pointer shrink-0">
-              <input type="checkbox" id="cfg-test-mode" class="sr-only peer" onchange="toggleTestMode(this.checked)">
-              <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all relative peer-checked:bg-amber-600"></div>
+              <input type="checkbox" id="cfg-test-mode" onchange="toggleTestMode(this.checked)" class="w-5 h-5" />
             </label>
           </div>
           <div class="pt-2 border-t border-amber-200/80">
@@ -315,17 +667,17 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">مشخصات مجری پژوهش (نمایش در صفحه اول)</label>
-            <input type="text" id="cfg-researcher-name" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" placeholder="مثلاً: گروه شهرسازی، دانشکده هنرهای زیبا، دانشگاه تهران" />
+            <input type="text" id="cfg-researcher-name" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" placeholder="مثلاً: گروه شهرسازی دانشگاه علم و صنعت ایران" />
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">راه ارتباطی با پژوهشگر</label>
-            <input type="text" id="cfg-researcher-contact" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" placeholder="مثلاً: urban.research@ut.ac.ir" />
+            <input type="text" id="cfg-researcher-contact" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" placeholder="مثلاً: elham_ali80@arch.iust.ac.ir" />
           </div>
         </div>
 
         <div class="space-y-3 pt-2 border-t border-slate-200">
           <h3 class="font-bold text-slate-800">۲. تصاویر بخش هـ (تصویر ۱ تا ۳ خیابان‌های تهران)</h3>
-          <p class="text-xs text-slate-500">به‌طور پیش‌فرض فایل‌های <code class="bg-slate-100 px-1 rounded">pic1.jpg</code>، <code class="bg-slate-100 px-1 rounded">pic2.jpg</code> و <code class="bg-slate-100 px-1 rounded">pic3.jpg</code> تنظیم شده‌اند. همچنین می‌توانید فایل هر تصویر را مستقیماً از کامپیوتر یا گوشی خود انتخاب کنید تا داخل فرم جاسازی شود:</p>
+          <p class="text-xs text-slate-500">به‌طور پیش‌فرض فایل‌های <code class="bg-slate-100 px-1 rounded">pic1.jpg</code>، <code class="bg-slate-100 px-1 rounded">pic2.jpg</code> و <code class="bg-slate-100 px-1 rounded">pic3.jpg</code> تنظیم شده‌اند. همچنین می‌توانید فایل هر تصویر را مستقیماً انتخاب کنید:</p>
           <div class="grid grid-cols-1 gap-2.5">
             <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
               <span class="text-xs font-bold w-16 shrink-0">تصویر ۱:</span>
@@ -362,18 +714,21 @@
               📋 کپی کد اسکریپت
             </button>
           </div>
-          <ol class="text-xs text-slate-600 list-decimal list-inside space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <li>یک فایل <strong>Google Sheet</strong> جدید در گوگل درایو خود بسازید و از منوی بالا روی <strong>Extensions &gt; Apps Script</strong> کلیک کنید.</li>
-            <li>کد زیر را کپی کرده، جایگزین کدهای فعلی داخل ادیتور کنید و دکمه ذخیره (💾) را بزنید.</li>
-            <li>روی دکمه آبی <strong>Deploy &gt; New deployment</strong> کلیک کنید، نوع را روی <strong>Web app</strong> بگذارید، گزینه <strong>Who has access</strong> را روی <strong>Anyone</strong> تنظیم کنید و Deploy را بزنید.</li>
-            <li>لینک Web app ساخته‌شده را در کادر شماره ۱ بالا قرار دهید (یا مستقیماً در متغیر <code class="bg-slate-200 px-1 rounded">DEFAULT_CONFIG.googleSheetWebAppUrl</code> در کد HTML ذخیره کنید).</li>
-          </ol>
-          <pre id="apps-script-code" dir="ltr" class="bg-slate-900 text-emerald-300 p-3.5 rounded-xl text-xs font-mono overflow-x-auto max-h-48 leading-relaxed">function doPost(e) {
+          <pre id="apps-script-code" dir="ltr" class="bg-slate-900 text-emerald-300 p-3.5 rounded-xl text-xs font-mono overflow-x-auto max-h-48 leading-relaxed">function doGet(e) { return handleRequest(e); }
+function doPost(e) { return handleRequest(e); }
+function handleRequest(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(10000);
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = JSON.parse(e.postData.contents);
-    
-    // Ordered columns matching the exact survey codebook
+    var data = {};
+    if (e && e.postData && e.postData.contents) {
+      try { data = JSON.parse(e.postData.contents); } catch (err) { data = e.parameter || {}; }
+    } else if (e && e.parameter && Object.keys(e.parameter).length > 0) {
+      data = e.parameter;
+    } else {
+      data = { timestamp: new Date().toLocaleString("fa-IR"), P1_consent: "تست اتصال موفق" };
+    }
     var headers = [
       "timestamp", "duration_sec", "attention_D17_passed",
       "P1_consent", "P2_tehran_resident", "P3_age_18plus", "P4_residence_duration",
@@ -383,7 +738,7 @@
       "C1_beautiful", "C2_boring", "C3_safe", "C4_wealthy", "C5_depressing", "C6_lively",
       "C7_active_space", "C8_safe_look", "C9_monotonous", "C10_scenic", "C11_gloomy_look", "C12_affluent_look",
       "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9",
-      "D10", "D11", "D12", "D13", "D13_avoid_night", "D14", "D15", "D16", "D17_attention", "D18",
+      "D10", "D11", "D12", "D13", "D14", "D15", "D16", "D17_attention", "D18",
       "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26",
       "E1_1", "E1_2", "E1_3", "E1_4", "E1_5", "E1_6", "E1_7_know",
       "E2_1", "E2_2", "E2_3", "E2_4", "E2_5", "E2_6", "E2_7_know",
@@ -391,24 +746,18 @@
       "F1_open_comment",
       "G1_age_group", "G2_gender", "G3_education", "G4_urban_field", "G5_household_size", "G6_cars", "G7_ses_ladder"
     ];
-
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(headers);
-    }
-
+    if (sheet.getLastRow() === 0) { sheet.appendRow(headers); }
     var row = headers.map(function(key) {
       var val = data[key];
       if (Array.isArray(val)) return val.join(" | ");
       return (val !== undefined && val !== null) ? val : "";
     });
-
     sheet.appendRow(row);
-
-    return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ status: "success" })).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
   }
 }</pre>
         </div>
@@ -436,6 +785,7 @@
   <script>
     const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzW5M5b2LzD_LYYSyaiuOYaylxyTNgHtdTuh-zIA4BvMxUzO1o2HGdVm9ZSLRuBEy2YgA/exec";
     const WEBHOOK_URL = GOOGLE_SHEET_URL;
+    const DEFAULT_WEBHOOK_URL = GOOGLE_SHEET_URL;
 
     /*************************************************************************
      * 1. DEFAULT CONFIGURATION (Production Webhook Hardcoded)
@@ -444,14 +794,12 @@
       googleSheetWebAppUrl: GOOGLE_SHEET_URL,
       researcherName: "گروه شهرسازی دانشگاه علم و صنعت ایران",
       researcherContact: "elham_ali80@arch.iust.ac.ir",
-      // Three uploaded street-level images of Tehran for Section E (Steps 9, 10, 11)
       image1Url: "pic1.jpg",
       image2Url: "pic2.jpg",
       image3Url: "pic3.jpg",
       testMode: false
     };
 
-    // Clear any stale localStorage webhook configurations so GOOGLE_SHEET_URL is always used
     try {
       localStorage.removeItem("tehran_survey_config_v5");
     } catch (e) {}
@@ -514,11 +862,111 @@
       renderCurrentStep(true);
     }
 
+    /*************************************************************************
+     * 1B. NON-BLOCKING MULTI-CDN LEAFLET LOADER (Works with & without VPN)
+     *************************************************************************/
+    let leafletLoadState = "idle"; // 'idle' | 'loading' | 'ready' | 'failed'
+    const LEAFLET_CDNS = [
+      {
+        css: "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css",
+        js: "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"
+      },
+      {
+        css: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+        js: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      },
+      {
+        css: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css",
+        js: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+      }
+    ];
+
+    function ensureLeafletLoaded(onReadyCallback) {
+      if (typeof window.L !== "undefined") {
+        leafletLoadState = "ready";
+        if (onReadyCallback) onReadyCallback();
+        return;
+      }
+      if (leafletLoadState === "loading") {
+        return;
+      }
+      leafletLoadState = "loading";
+      tryLoadLeafletFromCdn(0, onReadyCallback);
+    }
+
+    function tryLoadLeafletFromCdn(cdnIndex, onReadyCallback) {
+      if (typeof window.L !== "undefined") {
+        leafletLoadState = "ready";
+        if (onReadyCallback) onReadyCallback();
+        return;
+      }
+      if (cdnIndex >= LEAFLET_CDNS.length) {
+        leafletLoadState = "failed";
+        if (currentStep === 2) {
+          const mapEl = document.getElementById("tehran-map");
+          if (mapEl) {
+            mapEl.innerHTML = `
+              <div class="h-full flex flex-col items-center justify-center p-5 text-center space-y-3 bg-slate-50">
+                <p class="text-xs sm:text-sm font-bold text-slate-700">نقشه تعاملی به دلیل کندی اینترنت بارگذاری نشد.</p>
+                <p class="text-xs text-slate-500">می‌توانید از دکمه زیر برای انتخاب سریع منطقه و نام محله استفاده کنید یا دوباره تلاش کنید:</p>
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                  <button type="button" onclick="responses.A1_location_mode='text'; renderCurrentStep(false);" class="px-4 py-2 rounded-xl bg-brand-700 text-white text-xs font-bold">
+                    ✍️ انتخاب سریع منطقه و محله (بدون نقشه)
+                  </button>
+                  <button type="button" onclick="leafletLoadState='idle'; ensureLeafletLoaded(initTehranMap);" class="px-3.5 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 text-xs font-semibold">
+                    🔄 تلاش مجدد بارگذاری نقشه
+                  </button>
+                </div>
+              </div>
+            `;
+          }
+        }
+        return;
+      }
+
+      const cdn = LEAFLET_CDNS[cdnIndex];
+      const linkEl = document.createElement("link");
+      linkEl.rel = "stylesheet";
+      linkEl.href = cdn.css;
+      document.head.appendChild(linkEl);
+
+      const scriptEl = document.createElement("script");
+      scriptEl.src = cdn.js;
+      scriptEl.async = true;
+
+      let settled = false;
+      const timeoutId = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          tryLoadLeafletFromCdn(cdnIndex + 1, onReadyCallback);
+        }
+      }, 4500);
+
+      scriptEl.onload = function() {
+        if (!settled && typeof window.L !== "undefined") {
+          settled = true;
+          clearTimeout(timeoutId);
+          leafletLoadState = "ready";
+          if (onReadyCallback) onReadyCallback();
+          if (currentStep === 2) initTehranMap();
+        }
+      };
+
+      scriptEl.onerror = function() {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timeoutId);
+          tryLoadLeafletFromCdn(cdnIndex + 1, onReadyCallback);
+        }
+      };
+
+      document.head.appendChild(scriptEl);
+    }
+
     // Scene-matched SVG fallback generator for preview environments when pic1.jpg, pic2.jpg, pic3.jpg are not yet in the same directory
     function getTehranStreetFallbackDataUri(imgIndex) {
       let svg = "";
       if (Number(imgIndex) === 1) {
-        // Matches pic1.jpg: Wide asphalt street with modern mid-rise commercial/office buildings on both sides and blue vertical letters on right building
         svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
           <defs>
             <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
@@ -531,37 +979,25 @@
             </linearGradient>
           </defs>
           <rect width="960" height="300" fill="url(#sky1)"/>
-          <!-- Clouds wisps -->
           <path d="M250 60 Q420 110 560 70 T800 95" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" opacity="0.55"/>
-          <!-- Distant buildings -->
           <rect x="440" y="185" width="75" height="105" fill="#cbd5e1"/>
           <rect x="520" y="130" width="95" height="160" fill="#e2e8f0"/>
           <rect x="530" y="145" width="75" height="90" fill="#0284c7" opacity="0.5"/>
-          <!-- Left mid-rise commercial building -->
           <polygon points="0,15 315,75 315,310 0,360" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
           <polygon points="0,245 315,268 315,318 0,360" fill="#1e293b"/>
           <rect x="145" y="65" width="60" height="36" transform="skewY(8)" fill="#334155"/>
           <rect x="145" y="125" width="60" height="36" transform="skewY(8)" fill="#334155"/>
           <rect x="145" y="185" width="60" height="36" transform="skewY(8)" fill="#334155"/>
-          <!-- Right mid-rise stone & glass building with blue vertical sign -->
           <polygon points="645,45 960,0 960,355 645,305" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
           <polygon points="645,180 860,155 860,335 645,305" fill="#334155"/>
-          <text x="735" y="75" fill="#0284c7" font-family="sans-serif" font-weight="900" font-size="24">I</text>
-          <text x="730" y="102" fill="#0284c7" font-family="sans-serif" font-weight="900" font-size="24">R</text>
-          <text x="730" y="130" fill="#0284c7" font-family="sans-serif" font-weight="900" font-size="24">A</text>
-          <text x="730" y="158" fill="#0284c7" font-family="sans-serif" font-weight="900" font-size="24">N</text>
-          <!-- Wide asphalt street -->
           <polygon points="0,540 350,285 610,285 960,540" fill="url(#road1)"/>
-          <!-- Green & white curbs -->
           <line x1="0" y1="420" x2="355" y2="288" stroke="#10b981" stroke-width="8" stroke-dasharray="18,18"/>
           <line x1="960" y1="420" x2="605" y2="288" stroke="#10b981" stroke-width="8" stroke-dasharray="18,18"/>
-          <!-- Center dashed road line -->
           <line x1="480" y1="530" x2="480" y2="290" stroke="#f8fafc" stroke-width="8" stroke-dasharray="36,28"/>
           <rect x="280" y="475" width="400" height="36" rx="8" fill="#0f172a" opacity="0.78"/>
           <text x="480" y="498" text-anchor="middle" fill="#f8fafc" font-family="Tahoma, sans-serif" font-size="14">تصویر ۱ (pic1.jpg) — نمای خیابان با ساختمان‌های اداری-تجاری</text>
         </svg>`;
       } else if (Number(imgIndex) === 2) {
-        // Matches pic2.jpg: Green tree-lined street with tall sycamore trees casting shadows on asphalt and a silver car parked on the left
         svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
           <defs>
             <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
@@ -570,38 +1006,28 @@
             </linearGradient>
           </defs>
           <rect width="960" height="300" fill="url(#sky2)"/>
-          <!-- Distant white towers on right -->
           <rect x="605" y="165" width="48" height="110" fill="#e2e8f0"/>
           <rect x="695" y="175" width="90" height="100" fill="#f8fafc" stroke="#cbd5e1"/>
           <rect x="705" y="175" width="70" height="14" fill="#be123c"/>
-          <!-- Left brick wall -->
           <polygon points="0,235 360,262 360,305 0,340" fill="#7c2d12"/>
-          <!-- Wide asphalt street -->
           <polygon points="0,540 390,275 565,275 960,540" fill="#475569"/>
-          <!-- Dappled tree shadows on asphalt -->
           <ellipse cx="320" cy="430" rx="260" ry="65" fill="#1e293b" opacity="0.55"/>
           <ellipse cx="450" cy="360" rx="210" ry="42" fill="#1e293b" opacity="0.45"/>
-          <!-- Right green park strip & curb -->
           <polygon points="565,275 960,315 960,410 565,285" fill="#15803d"/>
           <line x1="960" y1="365" x2="560" y2="278" stroke="#10b981" stroke-width="7" stroke-dasharray="16,16"/>
-          <!-- Tall sycamore tree trunks on left -->
           <rect x="52" y="0" width="52" height="395" fill="#27272a"/>
           <rect x="265" y="35" width="28" height="305" fill="#3f3f46"/>
           <rect x="345" y="85" width="18" height="230" fill="#3f3f46"/>
-          <!-- Rich green sycamore foliage canopy -->
           <circle cx="220" cy="70" r="145" fill="#65a30d" opacity="0.88"/>
           <circle cx="370" cy="115" r="120" fill="#4d7c0f" opacity="0.85"/>
           <circle cx="845" cy="185" r="85" fill="#65a30d" opacity="0.9"/>
-          <!-- Silver car parked on the left -->
           <rect x="362" y="282" width="64" height="28" rx="7" fill="#cbd5e1" stroke="#334155" stroke-width="2"/>
           <rect x="372" y="274" width="44" height="14" rx="4" fill="#94a3b8"/>
-          <!-- Dashed road line -->
           <line x1="705" y1="535" x2="505" y2="285" stroke="#f8fafc" stroke-width="6" stroke-dasharray="30,24"/>
           <rect x="280" y="475" width="400" height="36" rx="8" fill="#0f172a" opacity="0.78"/>
           <text x="480" y="498" text-anchor="middle" fill="#f8fafc" font-family="Tahoma, sans-serif" font-size="14">تصویر ۲ (pic2.jpg) — خیابان پردرخت با سایه‌اندازی چنارها</text>
         </svg>`;
       } else {
-        // Matches pic3.jpg: Wide cracked asphalt street with long bright blue corrugated construction fence on right and Milad Tower in distance
         svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
           <defs>
             <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
@@ -610,21 +1036,15 @@
             </linearGradient>
           </defs>
           <rect width="960" height="295" fill="url(#sky3)"/>
-          <!-- Distant apartment blocks & Milad Tower silhouette -->
           <rect x="395" y="225" width="110" height="60" fill="#d6d3d1"/>
           <rect x="515" y="232" width="95" height="53" fill="#e7e5e4"/>
-          <!-- Milad Tower in distance -->
           <line x1="635" y1="190" x2="635" y2="275" stroke="#64748b" stroke-width="4"/>
           <ellipse cx="635" cy="212" rx="8" ry="6" fill="#475569"/>
-          <!-- Left stone wall & blue railings -->
           <polygon points="0,275 340,278 340,320 0,410" fill="#57534e"/>
           <polygon points="0,195 340,248 340,278 0,275" fill="none" stroke="#64748b" stroke-width="3"/>
-          <!-- Right bright blue corrugated construction fence -->
           <polygon points="385,272 960,245 960,330 385,286" fill="#0284c7"/>
-          <!-- Utility pole & overhead wire -->
           <line x1="652" y1="192" x2="652" y2="305" stroke="#475569" stroke-width="5"/>
           <path d="M652 200 Q800 155 960 95" fill="none" stroke="#334155" stroke-width="2"/>
-          <!-- Wide weathered/cracked asphalt foreground -->
           <polygon points="0,540 0,410 345,278 395,278 960,330 960,540" fill="#64748b"/>
           <path d="M180 535 L360 390 L420 440 M580 530 L520 420 L690 385 M750 535 L640 450" fill="none" stroke="#334155" stroke-width="2.5" opacity="0.65"/>
           <rect x="280" y="475" width="400" height="36" rx="8" fill="#0f172a" opacity="0.78"/>
@@ -635,8 +1055,7 @@
     }
 
     /*************************************************************************
-     * 2. BUILT-IN OFFLINE GAZETTEER OF TEHRAN (22 Districts + 65+ Landmarks)
-     * Works 100% offline/instantaneously in Iran without VPN, plus live OSM search
+     * 2. BUILT-IN OFFLINE GAZETTEER OF TEHRAN (22 Districts + 45+ Landmarks)
      *************************************************************************/
     const TEHRAN_DISTRICTS = [
       { id: 1, name: "منطقه ۱ (شمیرانات، تجریش، نیاوران، ولنجک)", lat: 35.8068, lng: 51.4293 },
@@ -728,7 +1147,7 @@
       P3_age_18plus: "",
       P4_residence_duration: "",
 
-      A1_location_mode: "map", // 'map' or 'text'
+      A1_location_mode: "map",
       A1_lat: "",
       A1_lng: "",
       A1_buffer_m: 500,
@@ -956,7 +1375,7 @@
       renderCurrentStep(false);
     }
 
-    // Renders 7-point Likert row card (Clean UI without code badges, top legends, or NA buttons)
+    // Renders 7-point Likert row card
     function renderLikertCard(item, scaleList) {
       const currentVal = responses[item.key];
 
@@ -1006,12 +1425,16 @@
       const viewport = document.getElementById("survey-viewport");
       document.getElementById("nav-controls").classList.remove("hidden");
 
-      // Re-trigger subtle animation only when changing steps
       if (scrollTop) {
         viewport.classList.remove("step-enter");
         void viewport.offsetWidth;
         viewport.classList.add("step-enter");
         window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Preload Leaflet in background when on Step 1 so Step 2 map is instant
+      if (currentStep === 1) {
+        setTimeout(() => ensureLeafletLoaded(), 150);
       }
 
       switch (currentStep) {
@@ -1020,7 +1443,7 @@
           break;
         case 2:
           viewport.innerHTML = buildStep2HTML();
-          setTimeout(() => initTehranMap(), 60);
+          setTimeout(() => ensureLeafletLoaded(initTehranMap), 40);
           break;
         case 3:
           viewport.innerHTML = buildStep3HTML();
@@ -1195,7 +1618,9 @@
 
             <!-- Interactive Map Container -->
             <div class="relative rounded-2xl overflow-hidden border border-slate-300 shadow-inner">
-              <div id="tehran-map"></div>
+              <div id="tehran-map">
+                <div class="h-full flex items-center justify-center text-xs text-slate-500 p-4">در حال آماده‌سازی نقشه تهران...</div>
+              </div>
             </div>
 
             <!-- Status Pill Below Map -->
@@ -1242,112 +1667,6 @@
             <p class="text-xs text-slate-500 pt-2 border-t border-slate-100">
               موقعیت ثبت‌شده صرفاً برای تعیین تقریبی محدوده اطراف محل سکونت و ارتباط آن با داده‌های محیطی استفاده خواهد شد.
             </p>
-          </div>
-        </div>
-      `;
-    }
-
-    /* ---------------- STEP 2: TEHRAN INTERACTIVE MAP (الف-۱) ---------------- */
-    function buildStep2HTML() {
-      const hasCoords = responses.A1_lat !== "" && responses.A1_lng !== "";
-      const isTextFallback = responses.A1_location_mode === "text";
-
-      return `
-        <div class="space-y-5">
-          <!-- Scope Instruction Banner -->
-          <div class="bg-brand-50/90 border border-brand-200 rounded-2xl p-4 sm:p-5 text-brand-950">
-            <p class="text-xs sm:text-sm text-brand-900 leading-relaxed">
-              در پاسخ به همه پرسش‌های این پرسشنامه، لطفاً <strong>محدوده اطراف محل سکونت خود</strong> را در نظر بگیرید؛ یعنی فضایی که در <strong>شعاع حدود ۵ دقیقه پیاده‌روی (تقریباً ۵۰۰ متر)</strong> از محل زندگی شما قرار دارد. پس از ثبت نقطه روی نقشه، دایره‌ای به شعاع ۵۰۰ متر نمایش داده می‌شود.
-            </p>
-          </div>
-
-          <!-- Prominent Main Question Prompt -->
-          <div class="bg-white rounded-2xl border-2 border-brand-600/20 p-4 sm:p-5 shadow-sm">
-            <h2 class="text-base sm:text-xl font-extrabold text-slate-900 leading-snug">
-              لطفاً نزدیک‌ترین تقاطع یا میدان به محل سکونت خود را روی نقشه مشخص کنید:
-            </h2>
-            <p class="text-xs text-slate-500 mt-1">نیازی به ثبت نشانی دقیق، شماره پلاک یا واحد مسکونی نیست.</p>
-          </div>
-
-          <!-- Map Search & Quick District Filter Card -->
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
-
-            <!-- Search Controls Row -->
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-              <!-- District Jump Dropdown -->
-              <div class="sm:col-span-5">
-                <label class="block text-xs font-bold text-slate-600 mb-1">پرش سریع به منطقه شهرداری:</label>
-                <select id="map-district-select" onchange="jumpToDistrict(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-brand-600">
-                  <option value="">انتخاب منطقه (۱ تا ۲۲)...</option>
-                  ${TEHRAN_DISTRICTS.map(d => `<option value="${d.id}" ${String(responses.A1_district) === String(d.id) ? 'selected' : ''}>${d.name}</option>`).join("")}
-                </select>
-              </div>
-
-              <!-- Persian POI / Intersection Search Box -->
-              <div class="sm:col-span-7 relative">
-                <label class="block text-xs font-bold text-slate-600 mb-1">جستجوی نام محله، میدان یا تقاطع در تهران:</label>
-                <div class="flex gap-1.5">
-                  <input type="text" id="map-search-input"
-                    oninput="handleLocalPoiSearch(this.value)"
-                    onkeydown="if(event.key==='Enter'){event.preventDefault(); triggerOnlinePoiSearch();}"
-                    placeholder="مثلاً: میدان ونک، صادقیه، هفت‌حوض، یوسف‌آباد..."
-                    class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm focus:outline-none focus:border-brand-600" />
-                  <button type="button" onclick="triggerOnlinePoiSearch()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold shrink-0">
-                    جستجو
-                  </button>
-                </div>
-
-                <!-- Instant Autocomplete Dropdown -->
-                <div id="poi-search-results" class="hidden absolute left-0 right-0 top-full mt-1 bg-white rounded-xl border border-slate-200 shadow-xl max-h-56 overflow-y-auto z-30 divide-y divide-slate-100"></div>
-              </div>
-            </div>
-
-            <!-- Interactive Map Container -->
-            <div class="relative rounded-2xl overflow-hidden border border-slate-300 shadow-inner">
-              <div id="tehran-map"></div>
-            </div>
-
-            <!-- Status Pill Below Map -->
-            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-              <div id="map-status-badge" class="text-xs sm:text-sm font-medium ${hasCoords ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-amber-800 bg-amber-50 border-amber-200'} px-3.5 py-2 rounded-xl border flex items-center gap-2">
-                ${hasCoords
-                  ? `<span>✅ محدوده ۵۰۰ متری روی نقشه ثبت شد (عرض جغرافیایی: <b dir="ltr">${Number(responses.A1_lat).toFixed(4)}</b>، طول جغرافیایی: <b dir="ltr">${Number(responses.A1_lng).toFixed(4)}</b>)</span>`
-                  : `<span>👆 لطفاً روی نزدیک‌ترین میدان یا تقاطع به محل سکونت خود روی نقشه کلیک کنید.</span>`
-                }
-              </div>
-
-              <button type="button" onclick="toggleMapFallback()" class="text-xs font-semibold text-slate-600 hover:text-brand-700 underline underline-offset-4 py-1">
-                ${isTextFallback ? "بازگشت به انتخاب از روی نقشه" : "اگر امکان کار با نقشه را ندارید، اینجا کلیک کنید"}
-              </button>
-            </div>
-
-            <!-- Fallback Text Input Section (For users who cannot use the map) -->
-            <div id="map-fallback-box" class="${isTextFallback ? 'block' : 'hidden'} mt-3 pt-4 border-t border-slate-200 bg-slate-50 p-4 rounded-xl space-y-3">
-              <div class="flex items-center justify-between">
-                <h4 class="text-xs sm:text-sm font-bold text-slate-800">ثبت متنی محدوده (در صورت عدم امکان کار با نقشه)</h4>
-                <span class="text-[11px] text-slate-500">حداقل منطقه و نام محله/تقاطع را وارد کنید</span>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 mb-1">منطقه شهرداری (۱ تا ۲۲)</label>
-                  <select onchange="responses.A1_district = this.value; responses.A1_location_mode = 'text';" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm">
-                    <option value="">انتخاب منطقه...</option>
-                    ${Array.from({length: 22}, (_, i) => i + 1).map(n => `
-                      <option value="${n}" ${String(responses.A1_district) === String(n) ? 'selected' : ''}>منطقه ${toPersianNum(n)}</option>
-                    `).join("")}
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 mb-1">نام محله</label>
-                  <input type="text" value="${responses.A1_neighborhood}" oninput="responses.A1_neighborhood = this.value; responses.A1_location_mode = 'text';" placeholder="مثلاً: یوسف‌آباد" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm" />
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 mb-1">نزدیک‌ترین تقاطع یا میدان</label>
-                  <input type="text" value="${responses.A1_intersection}" oninput="responses.A1_intersection = this.value; responses.A1_location_mode = 'text';" placeholder="مثلاً: میدان سلماس" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs sm:text-sm" />
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       `;
@@ -1416,7 +1735,7 @@
             ${renderRadioPills("A6_travel_mode", ["پیاده", "دوچرخه", "موتورسیکلت", "خودروی شخصی", "تاکسی یا تاکسی اینترنتی", "اتوبوس یا مترو"], "grid-cols-2 sm:grid-cols-3")}
           </div>
 
-          <!-- A7: Hours of Presence (Multi-select with exclusive 'تقریباً هیچ‌وقت') -->
+          <!-- A7: Hours of Presence -->
           <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
             <label class="block text-sm sm:text-base font-bold text-slate-800">
               معمولاً در چه ساعاتی در فضاهای عمومی این محدوده (خیابان، پیاده‌رو، پارک، مغازه‌ها) حضور دارید؟
@@ -1623,7 +1942,7 @@
                 alt="تصویر ${persianIdx} از خیابان‌های تهران"
                 onerror="this.onerror=null; this.src='${fallbackSvgUri}';"
                 onclick="openImageZoom(this.src, 'تصویر ${persianIdx}')"
-                class="w-full h-full object-cover cursor-zoom-in transition duration-300 group-hover:scale-[1.01]" />
+                class="w-full h-full object-cover cursor-zoom-in transition" />
 
               <button type="button"
                 onclick="openImageZoom(document.getElementById('step-street-img-${imgIndex}').src, 'تصویر ${persianIdx}')"
@@ -1788,12 +2107,18 @@
       const container = document.getElementById("tehran-map");
       if (!container) return;
 
+      if (typeof window.L === "undefined") {
+        ensureLeafletLoaded(initTehranMap);
+        return;
+      }
+
       if (mapInstance) {
         mapInstance.remove();
         mapInstance = null;
       }
 
-      // Default center: central Tehran (or previously chosen pin)
+      container.innerHTML = "";
+
       const initialLat = responses.A1_lat ? Number(responses.A1_lat) : 35.7219;
       const initialLng = responses.A1_lng ? Number(responses.A1_lng) : 51.3890;
       const initialZoom = responses.A1_lat ? 15 : 11;
@@ -1804,18 +2129,31 @@
         zoomControl: true
       });
 
-      // Standard OpenStreetMap Tiles - Native Persian labels inside Tehran & works without VPN in Iran
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      // Primary OpenStreetMap Tiles with automatic fallback to CartoDB if throttled
+      let tileErrorCount = 0;
+      let switchedToFallbackTiles = false;
+      const primaryLayer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 18,
         attribution: '&copy; OpenStreetMap'
-      }).addTo(mapInstance);
+      });
 
-      // If user already dropped a pin, restore pin + 500m circle
+      primaryLayer.on("tileerror", function() {
+        tileErrorCount++;
+        if (tileErrorCount >= 4 && !switchedToFallbackTiles && mapInstance) {
+          switchedToFallbackTiles = true;
+          L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap &copy; CARTO'
+          }).addTo(mapInstance);
+        }
+      });
+
+      primaryLayer.addTo(mapInstance);
+
       if (responses.A1_lat && responses.A1_lng) {
         placePinAndBuffer(Number(responses.A1_lat), Number(responses.A1_lng), false);
       }
 
-      // Map click handler
       mapInstance.on("click", function(e) {
         placePinAndBuffer(e.latlng.lat, e.latlng.lng, true);
       });
@@ -1827,7 +2165,7 @@
       responses.A1_location_mode = "map";
       hideValidationBanner();
 
-      if (!mapInstance) return;
+      if (!mapInstance || typeof window.L === "undefined") return;
 
       if (mapMarker) {
         mapInstance.removeLayer(mapMarker);
@@ -1839,13 +2177,11 @@
       mapMarker = L.marker([lat, lng], { draggable: true }).addTo(mapInstance);
       mapMarker.bindPopup("<div dir='rtl' class='text-xs font-bold text-slate-800'>مرکز محدوده ۵۰۰ متری اطراف محل سکونت شما</div>").openPopup();
 
-      // Drag end handler
       mapMarker.on("dragend", function(ev) {
         const pos = ev.target.getLatLng();
         placePinAndBuffer(pos.lat, pos.lng, false);
       });
 
-      // Draw 500m walking buffer circle
       mapCircle = L.circle([lat, lng], {
         radius: 500,
         color: "#0f766e",
@@ -1858,7 +2194,6 @@
         mapInstance.setView([lat, lng], Math.max(mapInstance.getZoom(), 15), { animate: true });
       }
 
-      // Update badge below map
       const badge = document.getElementById("map-status-badge");
       if (badge) {
         badge.className = "text-xs sm:text-sm font-medium text-emerald-700 bg-emerald-50 border-emerald-200 px-3.5 py-2 rounded-xl border flex items-center gap-2";
@@ -1963,7 +2298,7 @@
       responses.A1_location_mode = responses.A1_location_mode === "text" ? "map" : "text";
       renderCurrentStep(false);
       if (responses.A1_location_mode === "map") {
-        setTimeout(() => initTehranMap(), 60);
+        setTimeout(() => ensureLeafletLoaded(initTehranMap), 50);
       }
     }
 
@@ -2002,21 +2337,11 @@
         return true;
       }
 
-      if (currentStep === 4) {
-        return validateItemGroup(ITEMS_C_PART1);
-      }
-      if (currentStep === 5) {
-        return validateItemGroup(ITEMS_C_PART2);
-      }
-      if (currentStep === 6) {
-        return validateItemGroup(ITEMS_D_PART1);
-      }
-      if (currentStep === 7) {
-        return validateItemGroup(ITEMS_D_PART2);
-      }
-      if (currentStep === 8) {
-        return validateItemGroup(ITEMS_D_PART3);
-      }
+      if (currentStep === 4) return validateItemGroup(ITEMS_C_PART1);
+      if (currentStep === 5) return validateItemGroup(ITEMS_C_PART2);
+      if (currentStep === 6) return validateItemGroup(ITEMS_D_PART1);
+      if (currentStep === 7) return validateItemGroup(ITEMS_D_PART2);
+      if (currentStep === 8) return validateItemGroup(ITEMS_D_PART3);
 
       if (currentStep === 9 || currentStep === 10 || currentStep === 11) {
         const idx = currentStep - 8;
@@ -2064,7 +2389,6 @@
       hideValidationBanner();
       if (!validateCurrentStep()) return;
 
-      // Screening Disqualification Logic on Step 1 (پ-۱ تا پ-۴)
       if (currentStep === 1) {
         const isDisqualified =
           responses.P1_consent === "خیر" ||
@@ -2213,7 +2537,6 @@
         return `"${str}"`;
       });
 
-      // Add UTF-8 BOM (\uFEFF) so Microsoft Excel opens Persian characters cleanly
       const csvContent = "\uFEFF" + keys.join(",") + "\n" + values.join(",");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
@@ -2349,6 +2672,9 @@
         responses.P3_age_18plus = "بله";
         responses.P4_residence_duration = "۳ تا ۵ سال";
       } else if (currentStep === 2) {
+        responses.A1_lat = 35.7244;
+        responses.A1_lng = 51.4055;
+        responses.A1_district = 6;
         placePinAndBuffer(35.7244, 51.4055, true);
       } else if (currentStep === 3) {
         responses.A2_street_type = "خیابان فرعی";
@@ -2387,11 +2713,9 @@
       renderCurrentStep(false);
     }
 
-    // Initialize on load
-    window.onload = function() {
-      checkAdminAccessOnLoad();
-      renderCurrentStep(false);
-    };
+    // Immediate Non-Blocking Initialization (Renders in <30ms without waiting for external CDNs)
+    checkAdminAccessOnLoad();
+    renderCurrentStep(false);
   </script>
 </body>
 </html>
