@@ -19,8 +19,10 @@
   <meta name="twitter:description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
   <meta name="twitter:image" content="https://elhm29.github.io/tehran-survey/cover.jpg" />
 
-  <!-- Non-blocking Persian Font (renders immediately with system font, upgrades smoothly when loaded) -->
+  <!-- Non-blocking Persian Font & Leaflet Map CSS/JS (renders immediately on mobile with or without VPN) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" media="print" onload="this.media='all'" />
+  <script defer src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
 
   <!-- 100% Self-Contained Native CSS Engine (Zero external CSS/JS dependencies required to render UI) -->
   <style>
@@ -928,11 +930,13 @@ function handleRequest(e) {
       const linkEl = document.createElement("link");
       linkEl.rel = "stylesheet";
       linkEl.href = cdn.css;
+      linkEl.media = "print";
+      linkEl.onload = function() { this.media = "all"; };
       document.head.appendChild(linkEl);
 
       const scriptEl = document.createElement("script");
       scriptEl.src = cdn.js;
-      scriptEl.async = true;
+      scriptEl.defer = true;
 
       let settled = false;
       const timeoutId = setTimeout(() => {
@@ -1489,12 +1493,12 @@ function handleRequest(e) {
                 مجری پژوهش: ${appConfig.researcherName} | راه ارتباطی: ${appConfig.researcherContact}
               </span>
               <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
-                ⏱️ زمان پاسخ‌گویی: حدود ۱۲ تا ۱۵ دقیقه
+                ⏱️ زمان پاسخ‌گویی: حدود ۱۰ دقیقه
               </span>
             </div>
 
             <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-medium">
-              سلام و سپاس از زمانی که برای شرکت در این پژوهش اختصاص می‌دهید. این پژوهش با هدف بررسی <strong>ادراک ساکنان از کیفیت محیطی محله (یا محدوده) سکونت‌شان در شهر تهران</strong> انجام می‌شود. پاسخ‌های شما صرفاً برای اهداف علمی و پژوهشی استفاده خواهند شد.
+              سلام و سپاس از زمانی که برای شرکت در این پژوهش اختصاص می‌دهید. این پژوهش با هدف بررسی <strong>ادراک ساکنان از کیفیت محیطی محدوده سکونت‌شان در شهر تهران</strong> انجام می‌شود. پاسخ‌های شما صرفاً برای اهداف علمی و پژوهشی استفاده خواهند شد.
             </p>
 
             <!-- 3 Concise Info Cards -->
@@ -1505,7 +1509,7 @@ function handleRequest(e) {
               </div>
               <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
                 <div class="text-xs font-bold text-slate-800 mb-1">⏱️ زمان پاسخ‌گویی</div>
-                <p class="text-xs text-slate-600 leading-relaxed">حدود ۱۲ تا ۱۵ دقیقه.</p>
+                <p class="text-xs text-slate-600 leading-relaxed">حدود ۱۰ دقیقه.</p>
               </div>
               <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
                 <div class="text-xs font-bold text-slate-800 mb-1">✨ تجربه واقعی و معمول</div>
