@@ -746,7 +746,7 @@ function handleRequest(e) {
       "E2_1", "E2_2", "E2_3", "E2_4", "E2_5", "E2_6", "E2_7_know",
       "E3_1", "E3_2", "E3_3", "E3_4", "E3_5", "E3_6", "E3_7_know",
       "F1_open_comment",
-      "G1_age_group", "G2_gender", "G3_education", "G4_urban_field", "G5_household_size", "G6_cars", "G7_ses_ladder"
+      "G1_age_group", "G2_gender", "G3_education", "G4_urban_field", "G5_household_size", "G6_cars", "G7_ses_ladder", "G8_lottery_contact"
     ];
     if (sheet.getLastRow() === 0) { sheet.appendRow(headers); }
     var row = headers.map(function(key) {
@@ -1192,7 +1192,8 @@ function handleRequest(e) {
       G4_urban_field: "",
       G5_household_size: "",
       G6_cars: "",
-      G7_ses_ladder: ""
+      G7_ses_ladder: "",
+      G8_lottery_contact: ""
     };
 
     const STEP_TITLES = {
@@ -1501,11 +1502,16 @@ function handleRequest(e) {
               سلام و سپاس از زمانی که برای شرکت در این پژوهش اختصاص می‌دهید. این پژوهش با هدف بررسی <strong>ادراک ساکنان از کیفیت محیطی محدوده سکونت‌شان در شهر تهران</strong> انجام می‌شود. پاسخ‌های شما صرفاً برای اهداف علمی و پژوهشی استفاده خواهند شد.
             </p>
 
+            <!-- Lottery Notice Banner -->
+            <div class="p-3.5 rounded-xl bg-brand-50 border border-brand-200 text-brand-900 text-xs sm:text-sm leading-relaxed">
+              <strong>🎁 قرعه‌کشی قدردانی:</strong> به رسم سپاس از مشارکت شما، در پایان پژوهش قرعه‌کشی انجام می‌شود. در صورت تمایل می‌توانید شماره موبایل یا آیدی تلگرام خود را در صفحه آخر (به‌صورت کاملاً اختیاری) ثبت کنید.
+            </div>
+
             <!-- 3 Concise Info Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
                 <div class="text-xs font-bold text-slate-800 mb-1">🔒 داوطلبانه و کاملاً ناشناس</div>
-                <p class="text-xs text-slate-600 leading-relaxed">شرکت در این پژوهش کاملاً داوطلبانه است. نام، شماره تماس یا نشانی دقیق پرسیده نمی‌شود و نتایج فقط به‌صورت تجمیعی گزارش خواهد شد.</p>
+                <p class="text-xs text-slate-600 leading-relaxed">ثبت راه ارتباطی در پایان فرم کاملاً اختیاری و صرفاً جهت اطلاع‌رسانی قرعه‌کشی است؛ پاسخ‌های شما بی‌نام و تجمیعی تحلیل می‌شوند.</p>
               </div>
               <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
                 <div class="text-xs font-bold text-slate-800 mb-1">⏱️ زمان پاسخ‌گویی</div>
@@ -1975,7 +1981,7 @@ function handleRequest(e) {
       `;
     }
 
-    /* ---------------- STEP 12: OPEN QUESTION (و-۱) & DEMOGRAPHICS (ز-۱ تا ز-۷) ---------------- */
+    /* ---------------- STEP 12: OPEN QUESTION (و-۱) & DEMOGRAPHICS (ز-۱ تا ز-۸) ---------------- */
     function buildStep12HTML() {
       return `
         <div class="space-y-6">
@@ -2099,6 +2105,25 @@ function handleRequest(e) {
                 `;
               }).join("")}
             </div>
+          </div>
+
+          <!-- G8: Optional Lottery Contact -->
+          <div class="bg-white rounded-2xl border-2 border-brand-200 p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200">🎁 قرعه‌کشی قدردانی (اختیاری)</span>
+              <span class="text-xs text-slate-400">پاسخ به این سوال اختیاری است</span>
+            </div>
+            <label class="block text-sm sm:text-base font-bold text-slate-800 leading-relaxed">
+              در صورت تمایل به شرکت در قرعه‌کشی، لطفاً شماره تلفن همراه یا آیدی تلگرام خود را وارد کنید (اختیاری):
+            </label>
+            <input type="text" dir="ltr"
+              value="${responses.G8_lottery_contact}"
+              oninput="responses.G8_lottery_contact = this.value"
+              placeholder="مثلاً: 09120000000 یا @username"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-mono text-left focus:outline-none focus:border-brand-600" />
+            <p class="text-xs text-slate-500 leading-relaxed">
+              اطلاعات تماس شما کاملاً محرمانه باقی می‌ماند، در تحلیل‌های آماری استفاده نمی‌شود و پس از انجام قرعه‌کشی حذف خواهد شد.
+            </p>
           </div>
         </div>
       `;
@@ -2712,6 +2737,7 @@ function handleRequest(e) {
         responses.G5_household_size = "3";
         responses.G6_cars = "۱ دستگاه";
         responses.G7_ses_ladder = "6";
+        responses.G8_lottery_contact = "09120000000";
       }
       hideValidationBanner();
       renderCurrentStep(false);
