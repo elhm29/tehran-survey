@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>بررسی دیدگاه ساکنان درباره کیفیت محیطی محدوده‌های تهران | دانشگاه علم و صنعت ایران</title>
+  <title>بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران | دانشگاه علم و صنعت ایران</title>
   <meta name="description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://elhm29.github.io/tehran-survey/" />
   <meta property="og:site_name" content="دانشکده معماری و شهرسازی - دانشگاه علم و صنعت ایران" />
-  <meta property="og:title" content="بررسی دیدگاه ساکنان درباره کیفیت محیطی محدوده‌های تهران" />
+  <meta property="og:title" content="بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران" />
   <meta property="og:description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
   <meta property="og:image" content="https://elhm29.github.io/tehran-survey/cover.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="736" />
   <meta property="og:image:height" content="662" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="بررسی دیدگاه ساکنان درباره کیفیت محیطی محدوده‌های تهران" />
+  <meta name="twitter:title" content="بررسی دیدگاه ساکنان درباره کیفیت محیطی محله‌های تهران" />
   <meta name="twitter:description" content="پرسشنامه آنلاین | دانشگاه علم و صنعت ایران" />
   <meta name="twitter:image" content="https://elhm29.github.io/tehran-survey/cover.jpg" />
 
@@ -493,4 +493,73 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-100 selection:text-brand-900">
 
-  <!-- =================================================================
+  <!-- ===================================================================== -->
+  <!-- TOP STICKY HEADER & PROGRESS BAR                                      -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-brand-700 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+          ت
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold text-slate-800 leading-tight">پرسشنامه ادراک محیطی شهر تهران</h1>
+          <p id="step-subtitle" class="text-xs text-slate-500">خوش‌آمدگویی و شرایط ورود</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span id="step-counter-badge" class="text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">
+          گام ۱ از ۱۲
+        </span>
+        <span id="step-percent-badge" class="hidden sm:inline-block text-xs font-bold text-brand-700 w-9 text-left">
+          ۸٪
+        </span>
+      </div>
+    </div>
+
+    <!-- Smooth Progress Bar -->
+    <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+      <div id="progress-bar-fill" class="bg-gradient-to-l from-brand-500 to-brand-700 h-full transition-all duration-300 ease-out" style="width: 8%;"></div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN SURVEY CONTAINER                                                 -->
+  <!-- ===================================================================== -->
+  <main class="flex-grow w-full max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- Validation Error Toast Banner (Hidden by default) -->
+    <div id="validation-banner" class="hidden mb-5 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start justify-between gap-3 shadow-sm">
+      <div class="flex items-start gap-2.5">
+        <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div>
+          <p class="font-bold">لطفاً پیش از ادامه، به موارد مشخص‌شده پاسخ دهید:</p>
+          <p id="validation-message" class="mt-0.5 text-rose-700 text-xs sm:text-sm"></p>
+        </div>
+      </div>
+      <button onclick="hideValidationBanner()" class="text-rose-500 hover:text-rose-700 p-1">✕</button>
+    </div>
+
+    <!-- Dynamic Step Viewport -->
+    <div id="survey-viewport" class="step-enter"></div>
+
+    <!-- Navigation Footer Bar (Inside Main) -->
+    <div id="nav-controls" class="mt-8 pt-5 border-t border-slate-200/80 flex items-center justify-between gap-3">
+      <button id="btn-prev" type="button" onclick="prevStep()" class="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 font-medium text-sm transition flex items-center gap-2 disabled:opacity-40 disabled:pointer-events-none">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span>مرحله قبل</span>
+      </button>
+
+      <div class="flex items-center gap-2">
+        <!-- Quick Fill Button for Researcher Testing (Visible when Researcher Mode is unlocked) -->
+        <button id="btn-quick-fill" type="button" onclick="quickFillCurrentStep()" class="hidden px-3 py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 text-xs font-medium transition" title="پر کردن آزمایشی این صفحه برای تست سریع">
+          ⚡ تست سریع این صفحه
+        </button>
+
+        <button id="btn-next" type="button" onclick="nextStep()" class="px-7 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-800 active:bg-brand-900 text-white font-semibold text-sm shadow-sm hover:shadow transition flex items-center gap-2">
+          <span id="btn-next-text">ثبت و مرحله بعد
